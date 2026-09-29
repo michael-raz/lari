@@ -9,6 +9,8 @@ use std::collections::HashSet;
 use std::io::{self, Read, Write};
 
 pub use crate::vec2::*;
+use crate::qtree::*;
+use crate::util::*;
 
 
 /// A grid where Conway's Game of Life is played.
@@ -127,42 +129,19 @@ impl Grid {
 	}
 
 	/// Writes the state of this grid into `out`.
-	///
-	/// The format is a `u64` (all numbers are in little endian) that denotes the length of the
-	/// following array which; contains positions `(i64, i64)` for each living cell.
 	pub fn save(&self, out: &mut impl Write) -> io::Result<()> {
-		out.write_all(&(self.cells.len() as u64).to_le_bytes())?;
-		for pos in self.cells.iter() {
-			out.write_all(&(pos.x as i64).to_le_bytes())?;
-			out.write_all(&(pos.y as i64).to_le_bytes())?;
+		let mut q = Qtree::new();
+		for &p in self.get_alive() {
+			q.insert(p, ());
 		}
-
-		return Ok(());
+		q.save(out)
 	}
 
 	/// Reads from `src` to create a [Grid].
-	///
-	/// See [save][Grid::save] for details on the format.
 	pub fn load(src: &mut impl Read) -> io::Result<Self> {
-		macro_rules! read_le {
-			($t:ty) => {{
-				let mut buf = [0u8; std::mem::size_of::<$t>()];
-				src.read_exact(&mut buf)?;
+		let q = Qtree::load(src)?.into_iter().map(|(p, _)| p);
 
-				<$t>::from_le_bytes(buf)
-			}};
-		}
-
-		let count = read_le!(u64);
-		let mut out = Grid::new();
-		for _ in 0..count {
-			let x = read_le!(i64);
-			let y = read_le!(i64);
-
-			out.cells.insert((x, y).into());
-		}
-
-		return Ok(out);
+		return Ok(Self::from_iter(q));
 	}
 }
 
