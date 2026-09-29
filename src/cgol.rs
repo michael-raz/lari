@@ -7,39 +7,14 @@
 
 use std::collections::HashSet;
 use std::io::{self, Read, Write};
-use std::ops::Add;
 
+pub use crate::vec2::*;
 
-
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Pos {
-	pub x: i64,
-	pub y: i64,
-}
-impl Add for Pos {
-	type Output = Self;
-	fn add(self, other: Self) -> Self {
-		Self {
-			x: self.x + other.x,
-			y: self.y + other.y,
-		}
-	}
-}
-impl<T: Into<i64>> From<(T, T)> for Pos {
-	fn from((x, y): (T, T)) -> Self {
-		Self{x: x.into(), y: y.into()}
-	}
-}
-impl<T: Into<i64> + Copy> From<&(T, T)> for Pos {
-	fn from((x, y): &(T, T)) -> Self {
-		Self::from((*x, *y))
-	}
-}
 
 /// A grid where Conway's Game of Life is played.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Grid {
-	cells: HashSet<Pos>,
+	cells: HashSet<Vec2>,
 }
 
 impl Grid {
@@ -57,7 +32,7 @@ impl Grid {
 		];
 
 		let mut visited = HashSet::new();
-		let mut queue: Vec<Pos> = vec![];
+		let mut queue: Vec<Vec2> = vec![];
 		let mut scratch = HashSet::new();
 
 		for _ in 0..count {
@@ -75,7 +50,7 @@ impl Grid {
 			while let Some(cur) = queue.pop() {
 				let alive = self.cells.contains(&cur);
 				let neighbors = offsets.iter()
-					.map(|o| cur.add(o.into()));
+					.map(|o| cur.add(Vec2::from(o)));
 
 				let mut acount = 0;
 				for n in neighbors {
@@ -99,17 +74,17 @@ impl Grid {
 	}
 
 	/// Returns true if the cell at `pos` is alive.
-	pub fn get_cell(&self, pos: &Pos) -> bool {
+	pub fn get_cell(&self, pos: &Vec2) -> bool {
 		self.cells.contains(pos)
 	}
 
 	/// Get the positions of cells that are alive.
-	pub fn get_alive(&self) -> impl Iterator<Item=&'_ Pos> {
+	pub fn get_alive(&self) -> impl Iterator<Item=&'_ Vec2> {
 		self.cells.iter()
 	}
 
 	/// Set the value at cell `pos` to alive if `value` is true.
-	pub fn set_cell(&mut self, pos: Pos, value: bool) {
+	pub fn set_cell(&mut self, pos: Vec2, value: bool) {
 		if value {
 			self.cells.insert(pos);
 		} else {
@@ -118,7 +93,7 @@ impl Grid {
 	}
 
 	/// Get the bound box of the grid.
-	pub fn get_bounding_box(&self) -> (Pos, Pos) {
+	pub fn get_bounding_box(&self) -> (Vec2, Vec2) {
 		if self.cells.len() <= 0 {
 			return ((0, 0).into(), (0, 0).into())
 		}
@@ -170,7 +145,7 @@ impl Grid {
 	/// See [save][Grid::save] for details on the format.
 	pub fn load(src: &mut impl Read) -> io::Result<Self> {
 		macro_rules! read_le {
-			($src:ident, $t:ty) => {{
+			($t:ty) => {{
 				let mut buf = [0u8; std::mem::size_of::<$t>()];
 				src.read_exact(&mut buf)?;
 
@@ -178,11 +153,11 @@ impl Grid {
 			}};
 		}
 
-		let count = read_le!(src, u64);
+		let count = read_le!(u64);
 		let mut out = Grid::new();
 		for _ in 0..count {
-			let x = read_le!(src, i64);
-			let y = read_le!(src, i64);
+			let x = read_le!(i64);
+			let y = read_le!(i64);
 
 			out.cells.insert((x, y).into());
 		}
@@ -192,14 +167,14 @@ impl Grid {
 }
 
 impl IntoIterator for Grid {
-	type Item = Pos;
+	type Item = Vec2;
 	type IntoIter = <HashSet<Self::Item> as IntoIterator>::IntoIter;
 	fn into_iter(self) -> Self::IntoIter {
 		self.cells.into_iter()
 	}
 }
-impl FromIterator<Pos> for Grid {
-	fn from_iter<T: IntoIterator<Item=Pos>>(iter: T) -> Self {
+impl FromIterator<Vec2> for Grid {
+	fn from_iter<T: IntoIterator<Item=Vec2>>(iter: T) -> Self {
 		Self{cells: HashSet::from_iter(iter)}
 	}
 }

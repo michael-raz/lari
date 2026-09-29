@@ -16,12 +16,14 @@ impl<T> Vec2<T>
 	}
 }
 
+
+#[macro_export]
 macro_rules! vec2 {
 	($x:expr, $y:expr) => {
 		Vec2::new($x, $y)
 	};
 }
-pub(crate) use vec2;
+pub use vec2;
 
 impl<T> From<(T, T)> for Vec2<T>
 	where T: Copy,

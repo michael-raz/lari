@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::collections::{HashSet, VecDeque};
 
 use lari::*;
+
 use crate::wasm_helpers::*;
 use crate::wasm_helpers::{println, eprintln};
 use crate::dom::*;
@@ -162,8 +163,8 @@ impl<F: Fn() + 'static> DynamicInterval<F> {
 
 #[derive(Debug)]
 enum Action {
-	SetCell(Pos, bool),
-	MultiSetCell(Vec<(Pos, bool)>),
+	SetCell(Vec2, bool),
+	MultiSetCell(Vec<(Vec2, bool)>),
 	SetGrid{from: Grid, to: Grid},
 }
 
@@ -304,7 +305,7 @@ impl Viewer {
 
 		// group cells together and draw them as one
 		self.ctx.set_fill_style_str(ALIVE_COLOR);
-		let mut unsued_cells = HashSet::<&Pos>::from_iter(self.grid.get_alive());
+		let mut unsued_cells = HashSet::<&Vec2>::from_iter(self.grid.get_alive());
 		for pos in self.grid.get_alive() {
 			if !unsued_cells.remove(pos) {
 				continue;
@@ -317,10 +318,10 @@ impl Viewer {
 				let p = group[i];
 
 				group.extend([
-					Pos{x: -1, y:  0},
-					Pos{x:  1, y:  0},
-					Pos{x:  0, y: -1},
-					Pos{x:  0, y:  1},
+					vec2![-1,  0],
+					vec2![ 1,  0],
+					vec2![ 0, -1],
+					vec2![ 0,  1],
 				].into_iter().filter_map(|offset| {
 					unsued_cells.take(&(offset + *p))
 				}));
@@ -330,7 +331,7 @@ impl Viewer {
 
 			// convert cells into lines
 			let mut lines = group.into_iter()
-				.flat_map(|pos: &Pos| {
+				.flat_map(|pos: &Vec2| {
 					[
 						Line{a: (pos.x + 0, pos.y + 0), b: (pos.x + 1, pos.y + 0)},
 						Line{a: (pos.x + 1, pos.y + 0), b: (pos.x + 1, pos.y + 1)},
