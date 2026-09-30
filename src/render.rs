@@ -253,6 +253,7 @@ impl Viewport {
 			merge_lines(&mut lines);
 
 			// draw cells
+			self.ctx.begin_path();
 			while let Some(line) = lines.pop() {
 				macro_rules! with_screen_pos {
 					($($func:tt).*($pos:expr)) => {
@@ -263,7 +264,6 @@ impl Viewport {
 					};
 				}
 
-				self.ctx.begin_path();
 				with_screen_pos!(self.ctx.move_to(line.a));
 				with_screen_pos!(self.ctx.line_to(line.b));
 
@@ -281,9 +281,10 @@ impl Viewport {
 				}
 
 				with_screen_pos!(self.ctx.line_to(line.a));
-				self.ctx.close_path();
-				self.ctx.fill();
 			}
+			let fill = proto_get(&self.ctx, "fill").unwrap();
+			let fill = fill.dyn_into::<Function>().unwrap();
+			fill.call(&self.ctx, (&"evenodd".into(),)).unwrap();
 		}
 	}
 }
