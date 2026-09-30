@@ -1,4 +1,5 @@
 pub use std::ops::{Add, AddAssign, Sub, Neg, Mul, Div};
+use std::cmp::Ordering;
 use std::fmt::{self, Debug, Formatter};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
@@ -127,5 +128,21 @@ impl<T> Div<T> for Vec2<T>
 		self.x = self.x / rhs;
 		self.y = self.y / rhs;
 		self
+	}
+}
+
+impl<T> PartialOrd for Vec2<T>
+	where T: Copy + PartialOrd,
+{
+	fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
+		(self.x, self.y).partial_cmp(&(rhs.x, rhs.y))
+	}
+}
+
+impl<T> Ord for Vec2<T>
+	where T: Copy + Ord,
+{
+	fn cmp(&self, rhs: &Self) -> Ordering {
+		(self.x, self.y).cmp(&(rhs.x, rhs.y))
 	}
 }

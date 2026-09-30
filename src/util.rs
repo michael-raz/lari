@@ -1,6 +1,16 @@
+use flate2::{Compression, read::{ZlibEncoder, ZlibDecoder}};
+use base64::prelude::*;
+use base64::DecodeError;
+use std::borrow::Cow;
+use std::ops::{Shl, Shr};
+use std::io::{self, Read, Write, BufRead};
+
+
+
 macro_rules! read_le {
 	($src:expr, $t:ty) => {{
-		let mut buf = [0u8; std::mem::size_of::<$t>()];
+		use ::std::io::Read;
+		let mut buf = [0u8; ::std::mem::size_of::<$t>()];
 		$src.read_exact(&mut buf)?;
 
 		<$t>::from_le_bytes(buf)
@@ -20,7 +30,6 @@ pub(crate) fn log2_ceil(num: u64) -> u32 {
 	return m;
 }
 
-use std::ops::{Shl, Shr};
 pub(crate) fn shift<T: Shl<Output=T> + Shr<Output=T> + From<i8>>(num: T, shift_by: i8) -> T {
 	if shift_by > 0 {
 		return num << shift_by.into();
@@ -31,7 +40,6 @@ pub(crate) fn shift<T: Shl<Output=T> + Shr<Output=T> + From<i8>>(num: T, shift_b
 	}
 }
 
-use std::io::{self, Read, Write, BufRead};
 pub(crate) struct BitWriter<T: Write> {
 	inner: T,
 	buffer: u8,
@@ -77,8 +85,6 @@ impl<T: Write> BitWriter<T> {
 
 }
 
-
-
 struct BitIter<T> {
 	inner: T,
 	buffer: u8,
@@ -114,4 +120,29 @@ pub(crate) fn read_bits(src: impl BufRead) -> impl Iterator<Item=io::Result<bool
 		buffer: 0,
 		bit_offset: 0,
 	}
+}
+
+#[derive(Debug)]
+pub(crate) enum ZBase64Error {
+	Zlib(io::Error),
+	Base64(DecodeError),
+}
+pub(crate) fn bytes_to_text(src: impl AsRef<[u8]>) -> String {
+	let mut bytes = vec![];
+	ZlibEncoder::new(&mut src.as_ref(), Compression::best())
+		.read_to_end(&mut bytes).unwrap();
+
+	let out = BASE64_STANDARD.encode(bytes);
+	return out;
+}
+pub(crate) fn text_to_bytes<'a>(src: impl Into<Cow<'a, str>>) -> Result<Vec<u8>, ZBase64Error> {
+	let bytes = BASE64_STANDARD.decode(src.into().as_ref())
+		.map_err(|e| ZBase64Error::Base64(e))?;
+
+	let mut out = vec![];
+	ZlibDecoder::new(&mut bytes.as_slice())
+		.read_to_end(&mut out)
+		.map_err(|e| ZBase64Error::Zlib(e))?;
+
+	return Ok(out);
 }

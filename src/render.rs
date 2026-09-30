@@ -4,6 +4,8 @@ use std::collections::{HashSet, VecDeque};
 
 use lari::*;
 
+use crate::util::*;
+
 use crate::wasm_helpers::*;
 use crate::wasm_helpers::{println, eprintln};
 use crate::dom::*;
@@ -14,13 +16,13 @@ const CELL_SIZE: f64 = 50.0;
 
 #[derive(Clone)]
 struct Line {
-	a: (i64, i64),
-	b: (i64, i64),
+	a: Vec2,
+	b: Vec2,
 }
 impl Line {
 	fn parallel(&self, other: &Self) -> bool {
-		(self.a.0 == self.b.0 && other.a.0 == other.b.0) ||
-		(self.a.1 == self.b.1 && other.a.1 == other.b.1)
+		(self.a.x == self.b.x && other.a.x == other.b.x) ||
+		(self.a.y == self.b.y && other.a.y == other.b.y)
 	}
 
 	fn joint(&self, other: &Self) -> bool {
@@ -46,7 +48,7 @@ impl std::fmt::Debug for Line {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		let a = self.a.min(self.b);
 		let b = self.a.max(self.b);
-		write!(f, "({}, {}) <-> ({}, {})", a.0, a.1, b.0, b.1)
+		write!(f, "({}, {}) <-> ({}, {})", a.x, a.y, b.x, b.y)
 	}
 }
 impl PartialEq for Line {
@@ -333,10 +335,10 @@ impl Viewer {
 			let mut lines = group.into_iter()
 				.flat_map(|pos: &Vec2| {
 					[
-						Line{a: (pos.x + 0, pos.y + 0), b: (pos.x + 1, pos.y + 0)},
-						Line{a: (pos.x + 1, pos.y + 0), b: (pos.x + 1, pos.y + 1)},
-						Line{a: (pos.x + 1, pos.y + 1), b: (pos.x + 0, pos.y + 1)},
-						Line{a: (pos.x + 0, pos.y + 1), b: (pos.x + 0, pos.y + 0)},
+						Line{a: pos.add(vec2![0, 0]), b: pos.add(vec2![1, 0])},
+						Line{a: pos.add(vec2![1, 0]), b: pos.add(vec2![1, 1])},
+						Line{a: pos.add(vec2![1, 1]), b: pos.add(vec2![0, 1])},
+						Line{a: pos.add(vec2![0, 1]), b: pos.add(vec2![0, 0])},
 					].into_iter()
 				})
 				.collect::<Vec<_>>();
@@ -348,7 +350,7 @@ impl Viewer {
 			while let Some(line) = lines.pop() {
 				macro_rules! with_screen_pos {
 					($($func:tt).*($pos:expr)) => {
-						$($func).*(($pos.0 as f64 * size) - self.camera_pos.0, ($pos.1 as f64 * size) - self.camera_pos.1)
+						$($func).*(($pos.x as f64 * size) - self.camera_pos.0, ($pos.y as f64 * size) - self.camera_pos.1)
 					};
 				}
 
@@ -380,19 +382,10 @@ impl Viewer {
 
 
 async fn to_clipboard(grid: &Grid) {
-	let mut raw = vec![];
-	grid.save(&mut raw).unwrap();
+	let mut text = vec![];
+	grid.save(&mut text).unwrap();
 
-	use flate2::{Compression, read::ZlibEncoder};
-	use std::io::Read;
-
-	let mut bytes = vec![];
-	ZlibEncoder::new(&mut raw.as_slice(), Compression::best())
-		.read_to_end(&mut bytes).unwrap();
-
-	use base64::prelude::*;
-
-	let out = BASE64_STANDARD.encode(bytes);
+	let out = bytes_to_text(text);
 
 	let w = window().unwrap();
 	let nav = proto_get(&w, "navigator").unwrap();
@@ -413,15 +406,7 @@ async fn from_clipboard() -> Grid {
 
 	let text = text.await.unwrap();
 
-	use base64::prelude::*;
-	use flate2::read::ZlibDecoder;
-	use std::io::Read;
-
-	let text = text.as_string().unwrap();
-	let bytes = BASE64_STANDARD.decode(text).unwrap();
-	let mut data = vec![];
-	ZlibDecoder::new(&mut bytes.as_slice())
-		.read_to_end(&mut data).unwrap();
+	let data = text_to_bytes(text.as_string().unwrap()).unwrap();
 
 	Grid::load(&mut data.as_slice()).unwrap()
 }
