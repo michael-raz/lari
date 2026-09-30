@@ -170,140 +170,40 @@ enum Action {
 	SetGrid{from: Grid, to: Grid},
 }
 
-struct Viewer {
+struct Viewport {
 	grid: Grid,
 	ctx: CanvasRenderingContext2d,
-	paused: bool,
 
-	viewport_dim: (u32, u32),
-	camera_pos: (f64, f64),
+	dim: Vec2<u32>,
+	camera_pos: Vec2<f64>,
 	scale: f64,
-
-	// NOTE: these are in viewer because
-	//       panning and zooming both need to modify them
-	cursor_pin: Option<(f64, f64)>,
-	rsel: Option<((f64, f64), (f64, f64))>,
-
-	stopped_sel: bool,
-	action_log: VecDeque<Action>,
-	action_idx: usize,
 }
-impl Viewer {
+impl Viewport {
 	fn new(grid: Grid, ctx: CanvasRenderingContext2d) -> Self {
 		Self {
 			grid,
 			ctx,
-			paused: true,
-			viewport_dim: (0, 0),
-			camera_pos: (0.0, 0.0),
+			dim: Default::default(),
+			camera_pos: Default::default(),
 			scale: 1.0,
-			cursor_pin: None,
-			rsel: None,
-			stopped_sel: true,
-			action_log: Default::default(),
-			action_idx: 0,
 		}
 	}
 
-	fn apply_action(&mut self) {
-		match self.action_log[self.action_idx] {
-			Action::SetCell(pos, value) => self.grid.set_cell(pos, value),
-			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.grid.set_cell(pos, value)),
-			Action::SetGrid{ref to, ..} => self.grid = to.clone(),
-		}
-		self.action_idx += 1;
-	}
-	fn unapply_action(&mut self) {
-		self.action_idx -= 1;
-		match self.action_log[self.action_idx] {
-			Action::SetCell(pos, value) => self.grid.set_cell(pos, !value),
-			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.grid.set_cell(pos, !value)),
-			Action::SetGrid{ref from, ..} => self.grid = from.clone(),
-		}
+	fn from_screen_space(&self, pos: Vec2<f64>) -> Vec2<f64> {
+		(pos + self.camera_pos) / self.scale / CELL_SIZE
 	}
 
-	const MAX_UNDOS: usize = 100;
-	fn do_action(&mut self, action: Action) {
-		self.action_log.drain(self.action_idx..);
-
-		let next_len = self.action_log.len() + 1;
-		let overflow = next_len - next_len.min(Self::MAX_UNDOS);
-		self.action_log.drain(..overflow);
-		self.action_idx -= overflow;
-
-		self.action_log.push_back(action);
-		self.apply_action();
-	}
-	fn undo_action(&mut self) {
-		if self.action_idx == 0 {
-			// we're already at the start of the undo list
-			// so do nothing
-			return;
-		}
-
-		self.unapply_action();
-	}
-	fn redo_action(&mut self) {
-		if self.action_idx >= self.action_log.len() {
-			// we're already at the end of the undo list
-			// so do nothing
-			return;
-		}
-
-		self.apply_action();
-	}
-
-	fn from_screen_space(&self, xy: (f64, f64)) -> (f64, f64) {
-		(
-			(xy.0 + self.camera_pos.0) / self.scale / CELL_SIZE,
-			(xy.1 + self.camera_pos.1) / self.scale / CELL_SIZE,
-		)
-	}
-
-	fn to_screen_space(&self, xy: (i64, i64)) -> (f64, f64) {
-		(
-			xy.0 as f64 * self.scale * CELL_SIZE - self.camera_pos.0,
-			xy.1 as f64 * self.scale * CELL_SIZE - self.camera_pos.1,
-		)
-	}
-
-	fn get_selection(&self) -> Option<((i64, i64), (i64, i64))> {
-		self.rsel.map(|(start, end)| (
-			(
-				start.0.min(end.0).floor() as i64,
-				start.1.min(end.1).floor() as i64,
-			),
-			(
-				start.0.max(end.0).ceil() as i64,
-				start.1.max(end.1).ceil() as i64,
-			),
-		))
+	fn to_screen_space(&self, pos: Vec2) -> Vec2<f64> {
+		vec2_cast!(pos => f64) * self.scale * CELL_SIZE - self.camera_pos
 	}
 
 	fn draw(&self) {
-		let (width, height) = self.viewport_dim;
-
 		const DEAD_COLOR:  &str = "#0f0f0f";
 		const ALIVE_COLOR: &str = "#f0f0f0";
-		const RSEL_COLOR:  &str = "#ff0000";
 		let size = CELL_SIZE * self.scale;
 
 		self.ctx.set_fill_style_str(DEAD_COLOR);
-		self.ctx.fill_rect(0.0, 0.0, width as f64, height as f64);
-
-		// draw rectangle selection
-		if let Some((start, end)) = self.get_selection() {
-			let start = self.to_screen_space(start);
-			let end = self.to_screen_space(end);
-
-			self.ctx.set_stroke_style_str(RSEL_COLOR);
-			self.ctx.stroke_rect(
-				start.0,
-				start.1,
-				end.0 - start.0,
-				end.1 - start.1,
-			);
-		}
+		self.ctx.fill_rect(0.0, 0.0, self.dim.x as f64, self.dim.y as f64);
 
 		// group cells together and draw them as one
 		self.ctx.set_fill_style_str(ALIVE_COLOR);
@@ -350,7 +250,10 @@ impl Viewer {
 			while let Some(line) = lines.pop() {
 				macro_rules! with_screen_pos {
 					($($func:tt).*($pos:expr)) => {
-						$($func).*(($pos.x as f64 * size) - self.camera_pos.0, ($pos.y as f64 * size) - self.camera_pos.1)
+						$($func).*(
+							($pos.x as f64 * size) - self.camera_pos.x,
+							($pos.y as f64 * size) - self.camera_pos.y,
+						)
 					};
 				}
 
@@ -375,6 +278,115 @@ impl Viewer {
 				self.ctx.close_path();
 				self.ctx.fill();
 			}
+		}
+	}
+}
+
+struct InteractiveViewer {
+	vp: Viewport,
+
+	paused: bool,
+
+	// NOTE: these are in viewer because
+	//       panning and zooming both need to modify them
+	cursor_pin: Option<Vec2<f64>>,
+	rsel: Option<(Vec2<f64>, Vec2<f64>)>,
+
+	stopped_sel: bool,
+	action_log: VecDeque<Action>,
+	action_idx: usize,
+}
+impl InteractiveViewer {
+	fn new(grid: Grid, ctx: CanvasRenderingContext2d) -> Self {
+		Self {
+			vp: Viewport::new(grid, ctx),
+			paused: true,
+			cursor_pin: None,
+			rsel: None,
+			stopped_sel: true,
+			action_log: Default::default(),
+			action_idx: 0,
+		}
+	}
+
+	fn apply_action(&mut self) {
+		match self.action_log[self.action_idx] {
+			Action::SetCell(pos, value) => self.vp.grid.set_cell(pos, value),
+			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set_cell(pos, value)),
+			Action::SetGrid{ref to, ..} => self.vp.grid = to.clone(),
+		}
+		self.action_idx += 1;
+	}
+	fn unapply_action(&mut self) {
+		self.action_idx -= 1;
+		match self.action_log[self.action_idx] {
+			Action::SetCell(pos, value) => self.vp.grid.set_cell(pos, !value),
+			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set_cell(pos, !value)),
+			Action::SetGrid{ref from, ..} => self.vp.grid = from.clone(),
+		}
+	}
+
+	const MAX_UNDOS: usize = 100;
+	fn do_action(&mut self, action: Action) {
+		self.action_log.drain(self.action_idx..);
+
+		let next_len = self.action_log.len() + 1;
+		let overflow = next_len - next_len.min(Self::MAX_UNDOS);
+		self.action_log.drain(..overflow);
+		self.action_idx -= overflow;
+
+		self.action_log.push_back(action);
+		self.apply_action();
+	}
+	fn undo_action(&mut self) {
+		if self.action_idx == 0 {
+			// we're already at the start of the undo list
+			// so do nothing
+			return;
+		}
+
+		self.unapply_action();
+	}
+	fn redo_action(&mut self) {
+		if self.action_idx >= self.action_log.len() {
+			// we're already at the end of the undo list
+			// so do nothing
+			return;
+		}
+
+		self.apply_action();
+	}
+
+	fn get_selection(&self) -> Option<(Vec2, Vec2)> {
+		self.rsel.map(|(start, end)| (
+			(
+				start.x.min(end.x).floor() as i64,
+				start.y.min(end.y).floor() as i64,
+			).into(),
+			(
+				start.x.max(end.x).ceil() as i64,
+				start.y.max(end.y).ceil() as i64,
+			).into(),
+		))
+	}
+
+	fn draw(&self) {
+		self.vp.draw();
+
+		const RSEL_COLOR:  &str = "#ff0000";
+
+		// draw rectangle selection
+		if let Some((start, end)) = self.get_selection() {
+			let start = self.vp.to_screen_space(start);
+			let end = self.vp.to_screen_space(end);
+
+			self.vp.ctx.set_stroke_style_str(RSEL_COLOR);
+			self.vp.ctx.stroke_rect(
+				start.x,
+				start.y,
+				end.x - start.x,
+				end.y - start.y,
+			);
 		}
 	}
 }
@@ -443,7 +455,7 @@ pub fn run() {
 		[1, 1, 0, 0, 1, 1 ,1],
 	]);
 
-	let viewer = Viewer::new(grid, ctx);
+	let viewer = InteractiveViewer::new(grid, ctx);
 	let viewer = Arc::new(Mutex::new(viewer));
 	viewer.lock().unwrap().draw();
 
@@ -453,9 +465,9 @@ pub fn run() {
 	let di = DynamicInterval::new(w, {
 		let viewer = viewer.clone();
 		move || {
-			let viewer: &mut Viewer = &mut viewer.lock().unwrap();
+			let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
 			if !viewer.paused {
-				viewer.grid.step(1);
+				viewer.vp.grid.step(1);
 				viewer.draw();
 			}
 		}
@@ -470,7 +482,7 @@ pub fn run() {
 
 
 
-fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
+fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<InteractiveViewer>>) {
 	let window = WrappedHtml::own(window().unwrap());
 
 	// TODO: _also_ use "mousewheel" event to support Safari
@@ -480,19 +492,20 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 		move |e: WheelEvent|{
 			let viewer = &mut viewer.lock().unwrap();
 
-			let mpos = (e.offset_x() as f64, e.offset_y() as f64);
+			let mpos: Vec2<f64> = (
+				e.offset_x() as f64,
+				e.offset_y() as f64,
+			).into();
 
-			let prev = viewer.scale;
-			let delta = viewer.scale * -0.1 * (e.delta_y()).signum();
-			viewer.scale += delta;
+			let prev = viewer.vp.scale;
+			let delta = viewer.vp.scale * -0.1 * (e.delta_y()).signum();
+			viewer.vp.scale += delta;
 
-			let before = viewer.camera_pos;
-			viewer.camera_pos.0 = (viewer.scale / prev) * (mpos.0 + viewer.camera_pos.0) - mpos.0;
-			viewer.camera_pos.1 = (viewer.scale / prev) * (mpos.1 + viewer.camera_pos.1) - mpos.1;
+			let before = viewer.vp.camera_pos;
+			viewer.vp.camera_pos = (mpos + viewer.vp.camera_pos) * (viewer.vp.scale / prev) - mpos;
 
 			if let Some(mut tmp) = viewer.cursor_pin {
-				tmp.0 -= before.0 - viewer.camera_pos.0;
-				tmp.1 -= before.1 - viewer.camera_pos.1;
+				tmp -= before - viewer.vp.camera_pos;
 
 				viewer.cursor_pin = Some(tmp);
 			}
@@ -507,12 +520,12 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 		move |e: MouseEvent| {
 			let viewer = viewer.clone();
 			let _ = futures::future_to_promise(async move {
-				let viewer: &mut Viewer = &mut viewer.lock().unwrap();
+				let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
 
-				let mpos = (
+				let mpos: Vec2<f64> = (
 					e.x() as f64,
 					e.y() as f64,
-				);
+				).into();
 
 				let lmb = (e.buttons() & 1) > 0;
 				let rmb = (e.buttons() & 2) > 0;
@@ -521,23 +534,18 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 				// camera pannning
 				let pan = rmb && !shift;
 				if viewer.cursor_pin.is_none() && pan {
-					let mut tmp = mpos;
-					tmp.0 += viewer.camera_pos.0;
-					tmp.1 += viewer.camera_pos.1;
-
-					viewer.cursor_pin = Some(tmp);
+					viewer.cursor_pin = Some(mpos + viewer.vp.camera_pos);
 				} else if !pan {
 					viewer.cursor_pin = None;
 				}
 
 				if let Some(pinpoint) = viewer.cursor_pin {
-					viewer.camera_pos.0 = pinpoint.0 - mpos.0;
-					viewer.camera_pos.1 = pinpoint.1 - mpos.1;
+					viewer.vp.camera_pos = pinpoint - mpos;
 				}
 
 
 				// rectangle selection
-				let pos = viewer.from_screen_space(mpos);
+				let pos = viewer.vp.from_screen_space(mpos);
 				let rsel = lmb && shift;
 				if (viewer.stopped_sel || viewer.rsel.is_none()) && rsel {
 					viewer.rsel = Some((pos, pos));
@@ -563,24 +571,24 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 	canvas.add_listener("mousedown", {
 		let viewer = viewer.clone();
 		move |e: MouseEvent|{
-			let viewer: &mut Viewer = &mut viewer.lock().unwrap();
+			let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
 
-			let pos = (
+			let pos: Vec2<f64> = (
 				e.offset_x() as f64,
 				e.offset_y() as f64,
-			);
+			).into();
 
 			let lmb = (e.buttons() & 1) > 0;
 			let shift = e.shift_key();
 
 			if lmb && !shift {
-				let pos = viewer.from_screen_space(pos);
+				let pos = viewer.vp.from_screen_space(pos);
 				let pos = (
-					pos.0.floor() as i64,
-					pos.1.floor() as i64,
+					pos.x.floor() as i64,
+					pos.y.floor() as i64,
 				).into();
 
-				let alive = viewer.grid.get_cell(&pos);
+				let alive = viewer.vp.grid.get_cell(&pos);
 				let action = Action::SetCell(pos, !alive);
 				viewer.do_action(action);
 
@@ -610,10 +618,10 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 
 				// copy selection
 				if (copy || cut) && let Some(sel) = viewer.get_selection() {
-					let x_bound = sel.0.0..sel.1.0;
-					let y_bound = sel.0.1..sel.1.0;
+					let x_bound = sel.0.x..sel.1.x;
+					let y_bound = sel.0.y..sel.1.y;
 
-					let sel = viewer.grid.get_alive()
+					let sel = viewer.vp.grid.get_alive()
 						.filter(|pos| x_bound.contains(&pos.x) && y_bound.contains(&pos.y))
 						.copied()
 						.collect::<HashSet<_>>();
@@ -634,7 +642,7 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 				// paste
 				if paste {
 					let new_grid = from_clipboard().await;
-					let action = Action::SetGrid{from: viewer.grid.clone(), to: new_grid};
+					let action = Action::SetGrid{from: viewer.vp.grid.clone(), to: new_grid};
 					viewer.do_action(action);
 
 					viewer.rsel = None;
@@ -671,15 +679,15 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 		let canvas = canvas.clone();
 		move |_: Event|{
 			let canvas = canvas.as_elm::<HtmlCanvasElement>().unwrap();
-			let viewer: &mut Viewer = &mut viewer.lock().unwrap();
+			let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
 
 			let width = canvas.client_width() as u32;
 			let height = canvas.client_height() as u32;
-			if viewer.viewport_dim.0 == width && viewer.viewport_dim.1 == height {
+			if viewer.vp.dim.x == width && viewer.vp.dim.y == height {
 				return;
 			}
 
-			viewer.viewport_dim = (width, height);
+			viewer.vp.dim = vec2![width, height];
 			canvas.set_width(width);
 			canvas.set_height(height);
 
@@ -692,7 +700,7 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<Viewer>>) {
 
 
 
-fn create_load_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
+fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
 	let button = WrappedHtml::new("button").unwrap();
 	button.as_elm::<Node>().unwrap().set_text_content(Some("Load"));
 
@@ -703,7 +711,7 @@ fn create_load_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
 				let grid = from_clipboard().await;
 
 				let mut viewer = viewer.lock().unwrap();
-				let action = Action::SetGrid{from: viewer.grid.clone(), to: grid};
+				let action = Action::SetGrid{from: viewer.vp.grid.clone(), to: grid};
 				viewer.do_action(action);
 				viewer.draw();
 
@@ -715,7 +723,7 @@ fn create_load_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
 	button
 }
 
-fn create_save_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
+fn create_save_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
 	let button = WrappedHtml::new("button").unwrap();
 	button.as_elm::<Node>().unwrap().set_text_content(Some("Save"));
 
@@ -728,7 +736,7 @@ fn create_save_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
 				//       viewer whilst awaiting a promise
 				//       as doing so could cause a dead-lock
 				let viewer = viewer.lock().unwrap();
-				let grid = viewer.grid.clone();
+				let grid = viewer.vp.grid.clone();
 				drop(viewer);
 
 				to_clipboard(&grid).await;
@@ -742,7 +750,7 @@ fn create_save_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
 	button
 }
 
-fn create_play_button(viewer: Arc<Mutex<Viewer>>) -> WrappedHtml {
+fn create_play_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
 	let button = WrappedHtml::new("button").unwrap();
 	button.as_elm::<Node>().unwrap().set_text_content(Some("Play"));
 
@@ -795,7 +803,7 @@ fn create_label() -> WrappedHtml {
 	WrappedHtml::new("span").unwrap()
 }
 
-fn create_controls<F>(viewer: Arc<Mutex<Viewer>>, di: Arc<Mutex<DynamicInterval<F>>>) -> WrappedHtml
+fn create_controls<F>(viewer: Arc<Mutex<InteractiveViewer>>, di: Arc<Mutex<DynamicInterval<F>>>) -> WrappedHtml
 	where F: 'static + Fn()
 {
 	let controls = WrappedHtml::new("div").unwrap();

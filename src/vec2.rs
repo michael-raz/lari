@@ -1,4 +1,4 @@
-pub use std::ops::{Add, AddAssign, Sub, Neg, Mul, Div};
+pub use std::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
 use std::cmp::Ordering;
 use std::fmt::{self, Debug, Formatter};
 
@@ -15,6 +15,13 @@ impl<T> Vec2<T>
 	pub fn new(x: T, y: T) -> Self {
 		Self{x, y}
 	}
+
+	pub fn cast_inner<U: Copy + From<T>>(self) -> Vec2<U> {
+		Vec2::<U>::new(
+			self.x.into(),
+			self.y.into(),
+		)
+	}
 }
 
 
@@ -25,6 +32,14 @@ macro_rules! vec2 {
 	};
 }
 pub use vec2;
+
+#[macro_export]
+macro_rules! vec2_cast {
+	($v:expr => $t:ty) => {
+		Vec2::new($v.x as $t, $v.y as $t)
+	};
+}
+pub use vec2_cast;
 
 impl<T> From<(T, T)> for Vec2<T>
 	where T: Copy,
@@ -38,6 +53,13 @@ impl<T> From<&(T, T)> for Vec2<T>
 {
 	fn from((x, y): &(T, T)) -> Self {
 		Self::from((*x, *y))
+	}
+}
+impl<T> Into<(T, T)> for Vec2<T>
+	where T: Copy,
+{
+	fn into(self) -> (T, T) {
+		(self.x, self.y)
 	}
 }
 
@@ -82,9 +104,16 @@ impl<T> Sub<Self> for Vec2<T>
 {
 	type Output = Self;
 	fn sub(mut self, rhs: Self) -> Self::Output {
+		self -= rhs;
+		self
+	}
+}
+impl<T> SubAssign<Self> for Vec2<T>
+	where T: Copy + Sub<T, Output=T>,
+{
+	fn sub_assign(&mut self, rhs: Self) {
 		self.x = self.x - rhs.x;
 		self.y = self.y - rhs.y;
-		self
 	}
 }
 impl<T> Sub<T> for Vec2<T>
@@ -144,5 +173,16 @@ impl<T> Ord for Vec2<T>
 {
 	fn cmp(&self, rhs: &Self) -> Ordering {
 		(self.x, self.y).cmp(&(rhs.x, rhs.y))
+	}
+}
+
+impl<T> Default for Vec2<T>
+	where T: Copy + Default,
+{
+	fn default() -> Self {
+		Self {
+			x: Default::default(),
+			y: Default::default(),
+		}
 	}
 }
