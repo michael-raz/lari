@@ -1,13 +1,14 @@
 use std::sync::{Arc, Mutex};
 use std::str::FromStr;
 use std::collections::{HashSet, VecDeque};
+use std::borrow::Cow;
 
 use lari::*;
 
 use crate::util::*;
 
 use crate::wasm_helpers::*;
-use crate::wasm_helpers::{println, eprintln};
+use crate::wasm_helpers::{println, eprintln, dbg};
 use crate::dom::*;
 
 
@@ -172,6 +173,7 @@ enum Action {
 
 struct Viewport {
 	grid: Grid,
+	canvas: WrappedHtml,
 	ctx: CanvasRenderingContext2d,
 
 	dim: Vec2<u32>,
@@ -179,9 +181,13 @@ struct Viewport {
 	scale: f64,
 }
 impl Viewport {
-	fn new(grid: Grid, ctx: CanvasRenderingContext2d) -> Self {
+	fn new(grid: Grid) -> Self {
+		let canvas = WrappedHtml::new("canvas").unwrap();
+		let ctx = canvas.as_elm::<HtmlCanvasElement>().unwrap().get_context("2d").unwrap().unwrap()
+			.dyn_into::<CanvasRenderingContext2d>().unwrap();
 		Self {
 			grid,
+			canvas,
 			ctx,
 			dim: Default::default(),
 			camera_pos: Default::default(),
@@ -297,9 +303,9 @@ struct InteractiveViewer {
 	action_idx: usize,
 }
 impl InteractiveViewer {
-	fn new(grid: Grid, ctx: CanvasRenderingContext2d) -> Self {
+	fn new(grid: Grid) -> Self {
 		Self {
-			vp: Viewport::new(grid, ctx),
+			vp: Viewport::new(grid),
 			paused: true,
 			cursor_pin: None,
 			rsel: None,
@@ -433,20 +439,29 @@ pub fn run() {
 	let div = WrappedHtml::new("div").unwrap();
 	set_style!((&div){
 		"display": "flex";
-		"flex-direction": "column";
+		"flex-direction": "row";
 		"width": "100%";
 		"height": "100%";
 	});
 	body.append_child(&div).unwrap();
 
-	let canvas = WrappedHtml::new("canvas").unwrap();
-	set_style!((&canvas){
+	let side = WrappedHtml::new("div").unwrap();
+	set_style!((&side){
+		"display": "flex";
+		"flex-direction": "column";
+		"width": "20%";
+		"height": "100%";
+	});
+	div.append_child(&side).unwrap();
+
+	let main = WrappedHtml::new("div").unwrap();
+	set_style!((&main){
+		"display": "flex";
+		"flex-direction": "column";
 		"width": "100%";
 		"height": "100%";
 	});
-
-	let ctx = canvas.as_elm::<HtmlCanvasElement>().unwrap().get_context("2d").unwrap().unwrap()
-		.dyn_into::<CanvasRenderingContext2d>().unwrap();
+	div.append_child(&main).unwrap();
 
 	// acorn
 	let grid = Grid::from_bits(&[
@@ -455,12 +470,76 @@ pub fn run() {
 		[1, 1, 0, 0, 1, 1 ,1],
 	]);
 
-	let viewer = InteractiveViewer::new(grid, ctx);
+	{
+		let div = WrappedHtml::new("div").unwrap();
+		set_style!((&div){
+			"display": "flex";
+			"flex-direction": "column";
+			"width": "100%";
+			"height": "100%";
+			"overflow": "scroll";
+			"direction": "rtl";
+		});
+		side.append_child(&div).unwrap();
+
+		let div = Arc::new(div);
+		side.append_child(&create_button("Add", move |_| {
+			let div = div.clone();
+			let _ = futures::future_to_promise(async move {
+				let grid = from_clipboard().await;
+
+				// make it so the most top left cell is at (0, 0)
+				let min = grid.get_bounding_box().0;
+				let grid = Grid::from_iter(grid.into_iter().map(|p| p - min));
+
+				let bp = Viewport::new(grid);
+				set_style!((&bp.canvas){
+					"width": "100%";
+					"aspect-ratio": "1";
+				});
+				div.append_child(&bp.canvas).unwrap();
+
+				let bp = Arc::new(Mutex::new(bp));
+
+				canvas_resize({
+					let bp = bp.clone();
+					move |callback| if let Ok(mut bp) = bp.try_lock() {
+						callback(&mut bp);
+
+						let bb = bp.grid.get_bounding_box();
+
+						let g_width  = ((bb.1.x - bb.0.x) as f64 + 1.0) * CELL_SIZE;
+						let g_height = ((bb.1.y - bb.0.y) as f64 + 1.0) * CELL_SIZE;
+						let g_max = g_width.max(g_height);
+
+						let (c_width, c_height) = bp.dim.cast_inner::<f64>().into();
+						let c_max = c_width.max(c_height);
+
+						// make it so the entire grid is visible
+						bp.scale = c_max / g_max;
+						bp.camera_pos.x = -(c_width  - g_width  * bp.scale) / 2.0;
+						bp.camera_pos.y = -(c_height - g_height * bp.scale) / 2.0;
+
+						bp.draw();
+					}
+				});
+
+				return Ok(JsValue::NULL);
+			});
+		})).unwrap();
+	}
+
+	let viewer = InteractiveViewer::new(grid);
+	set_style!((&viewer.vp.canvas){
+		"width": "100%";
+		"height": "100%";
+	});
+	main.append_child(&viewer.vp.canvas).unwrap();
+
 	let viewer = Arc::new(Mutex::new(viewer));
 	viewer.lock().unwrap().draw();
 
-	let canvas = Arc::new(canvas);
-	init_canvas(canvas.clone(), viewer.clone());
+	init_canvas(viewer.clone());
 
 	let di = DynamicInterval::new(w, {
 		let viewer = viewer.clone();
@@ -474,16 +553,16 @@ pub fn run() {
 	}, None);
 	DynamicInterval::set_rate(di.clone(), from_slider(DEFAULT_SLIDE));
 
-	div.append_child(&canvas).unwrap();
-	div.append_child(&create_controls(viewer, di)).unwrap();
+	main.append_child(&create_controls(viewer, di)).unwrap();
 
 	window().unwrap().dispatch_event(&Event::new("resize").unwrap()).unwrap();
 }
 
 
 
-fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<InteractiveViewer>>) {
+fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
 	let window = WrappedHtml::own(window().unwrap());
+	let canvas = &mut viewer.lock().unwrap().vp.canvas;
 
 	// TODO: _also_ use "mousewheel" event to support Safari
 	//       https://developer.mozilla.org/en-US/docs/Web/API/Element/mousewheel_event
@@ -523,8 +602,8 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<InteractiveViewer>>) 
 				let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
 
 				let mpos: Vec2<f64> = (
-					e.x() as f64,
-					e.y() as f64,
+					e.offset_x() as f64,
+					e.offset_y() as f64,
 				).into();
 
 				let lmb = (e.buttons() & 1) > 0;
@@ -673,25 +752,37 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<InteractiveViewer>>) 
 		e.prevent_default();
 	}).unwrap();
 
-
-	let onresize = {
+	canvas_resize({
 		let viewer = viewer.clone();
-		let canvas = canvas.clone();
-		move |_: Event|{
-			let canvas = canvas.as_elm::<HtmlCanvasElement>().unwrap();
-			let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
-
-			let width = canvas.client_width() as u32;
-			let height = canvas.client_height() as u32;
-			if viewer.vp.dim.x == width && viewer.vp.dim.y == height {
-				return;
-			}
-
-			viewer.vp.dim = vec2![width, height];
-			canvas.set_width(width);
-			canvas.set_height(height);
-
+		move |callback| if let Ok(mut viewer) = viewer.try_lock() {
+			callback(&mut viewer.vp);
 			viewer.draw();
+		}
+	});
+}
+
+fn canvas_resize<B>(mut vp: B)
+	// something like `for<'a> B: 'static FnMut() -> &'a mut Viewport` would be better
+	// but requires generic associated types
+	where B: 'static + FnMut(&mut dyn FnMut(&mut Viewport)),
+{
+	let window = WrappedHtml::own(window().unwrap());
+
+	let mut onresize = {
+		move |_: Event| {
+			vp(&mut |vp: &mut Viewport| {
+				let canvas = vp.canvas.as_elm::<HtmlCanvasElement>().unwrap();
+
+				let width = canvas.client_width() as u32;
+				let height = canvas.client_height() as u32;
+				if vp.dim.x == width && vp.dim.y == height {
+					return;
+				}
+
+				vp.dim = vec2![width, height];
+				canvas.set_width(width);
+				canvas.set_height(height);
+			});
 		}
 	};
 	onresize(Event::new("resize").unwrap());
@@ -699,55 +790,48 @@ fn init_canvas(canvas: Arc<WrappedHtml>, viewer: Arc<Mutex<InteractiveViewer>>) 
 }
 
 
+fn create_button<'a>(text: impl Into<Cow<'a, str>>, callback: impl 'static + FnMut(MouseEvent)) -> WrappedHtml {
+	let button = WrappedHtml::new("button").unwrap();
+	button.as_elm::<Node>().unwrap().set_text_content(Some(text.into().as_ref()));
+
+	button.add_listener("click", callback).unwrap();
+
+	return button;
+}
+
 
 fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
-	let button = WrappedHtml::new("button").unwrap();
-	button.as_elm::<Node>().unwrap().set_text_content(Some("Load"));
+	create_button("Load", move |_| {
+		let viewer = viewer.clone();
+		let _ = futures::future_to_promise(async move {
+			let grid = from_clipboard().await;
 
-	button.add_listener("click", {
-		move |_: MouseEvent| {
-			let viewer = viewer.clone();
-			let _ = futures::future_to_promise(async move {
-				let grid = from_clipboard().await;
+			let mut viewer = viewer.lock().unwrap();
+			let action = Action::SetGrid{from: viewer.vp.grid.clone(), to: grid};
+			viewer.do_action(action);
+			viewer.draw();
 
-				let mut viewer = viewer.lock().unwrap();
-				let action = Action::SetGrid{from: viewer.vp.grid.clone(), to: grid};
-				viewer.do_action(action);
-				viewer.draw();
-
-				return Ok(JsValue::NULL);
-			});
-		}
-	}).unwrap();
-
-	button
+			return Ok(JsValue::NULL);
+		});
+	})
 }
 
 fn create_save_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
-	let button = WrappedHtml::new("button").unwrap();
-	button.as_elm::<Node>().unwrap().set_text_content(Some("Save"));
-
-	button.add_listener("click", {
+	create_button("Save", move |_| {
 		let viewer = viewer.clone();
-		move |_: MouseEvent| {
-			let viewer = viewer.clone();
-			let _ = futures::future_to_promise(async move {
-				// NOTE: we clone grid here so that we don't hold onto the lock for
-				//       viewer whilst awaiting a promise
-				//       as doing so could cause a dead-lock
-				let viewer = viewer.lock().unwrap();
-				let grid = viewer.vp.grid.clone();
-				drop(viewer);
+		let _ = futures::future_to_promise(async move {
+			// NOTE: we clone grid here so that we don't hold onto the lock for
+			//       viewer whilst awaiting a promise
+			//       as doing so could cause a dead-lock
+			let viewer = viewer.lock().unwrap();
+			let grid = viewer.vp.grid.clone();
+			drop(viewer);
 
-				to_clipboard(&grid).await;
+			to_clipboard(&grid).await;
 
-				return Ok(JsValue::NULL);
-			});
-		}
-
-	}).unwrap();
-
-	button
+			return Ok(JsValue::NULL);
+		});
+	})
 }
 
 fn create_play_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {

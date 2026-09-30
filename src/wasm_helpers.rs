@@ -29,6 +29,19 @@ macro_rules! eprintln {
 }
 pub(crate) use eprintln;
 
+#[cfg(target_family="wasm")]
+macro_rules! dbg {
+	() => {
+		println!("[{}:{}]", file!(), line!())
+	};
+	($($x:expr),* $(,)?) => {
+		$(
+			println!("[{}:{}] {} = {:?}", file!(), line!(), stringify!($x), $x);
+		);*
+	};
+}
+pub(crate) use dbg;
+
 
 pub fn wrap<T: FromWasmAbi, F: FnMut(T) + 'static>(callback: F) -> ScopedClosure<'static, dyn FnMut(T)> {
 	Closure::wrap(Box::new(callback) as Box<dyn FnMut(_)>)
