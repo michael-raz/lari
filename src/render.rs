@@ -294,6 +294,8 @@ struct InteractiveViewer {
 
 	paused: bool,
 
+	blueprint_div: WrappedHtml,
+
 	// NOTE: these are in viewer because
 	//       panning and zooming both need to modify them
 	cursor_pin: Option<Vec2<f64>>,
@@ -308,6 +310,7 @@ impl InteractiveViewer {
 		Self {
 			vp: Viewport::new(grid),
 			paused: true,
+			blueprint_div: WrappedHtml::new("div").unwrap(),
 			cursor_pin: None,
 			rsel: None,
 			stopped_sel: true,
@@ -396,6 +399,89 @@ impl InteractiveViewer {
 			);
 		}
 	}
+
+	fn add_blueprint(this: Arc<Mutex<Self>>, grid: Grid) {
+		// make it so the most top left cell is at (0, 0)
+		let min = grid.get_bounding_box().0;
+		let grid = Grid::from_iter(grid.into_iter().map(|p| p - min));
+
+		let div = WrappedHtml::new("div").unwrap();
+		set_style!((&div){
+			"display": "flex";
+			"flex-direction": "column";
+			"width": "100%";
+		});
+		this.lock().unwrap().blueprint_div.append_child(&div).unwrap();
+
+		let bp = Viewport::new(grid);
+		set_style!((&bp.canvas){
+			"width": "100%";
+			"aspect-ratio": "1";
+		});
+		div.append_child(&bp.canvas).unwrap();
+
+		let buttons = WrappedHtml::new("div").unwrap();
+		set_style!((&buttons){
+			"width": "100%";
+			"direction": "initial";
+		});
+		div.append_child(&buttons).unwrap();
+
+		let bp = Arc::new(Mutex::new(bp));
+
+		let load = create_button("Load", {
+			let this = this.clone();
+			let bp = bp.clone();
+			move |_| {
+				let mut this = this.lock().unwrap();
+				let bp = bp.lock().unwrap();
+
+				let prev = this.vp.grid.clone();
+				this.do_action(Action::SetGrid {
+					from: prev,
+					to: bp.grid.clone(),
+				});
+				this.draw();
+			}
+		});
+		buttons.append_child(&load).unwrap();
+
+		let copy = create_button("Copy", {
+			let bp = bp.clone();
+			move |_| {
+				let bp = bp.clone();
+				let _ = futures::future_to_promise(async move {
+					to_clipboard(&bp.lock().unwrap().grid).await;
+
+					return Ok(JsValue::NULL);
+				});
+			}
+		});
+		buttons.append_child(&copy).unwrap();
+
+		canvas_resize({
+			let bp = bp.clone();
+			move |callback| if let Ok(mut bp) = bp.try_lock() {
+				callback(&mut bp);
+
+				let bb = bp.grid.get_bounding_box();
+
+				let g_width  = ((bb.1.x - bb.0.x) as f64 + 1.0) * CELL_SIZE;
+				let g_height = ((bb.1.y - bb.0.y) as f64 + 1.0) * CELL_SIZE;
+				let g_max = g_width.max(g_height);
+
+				let (c_width, c_height) = bp.dim.cast_inner::<f64>().into();
+				let c_max = c_width.max(c_height);
+
+				// make it so the entire grid is visible
+				bp.scale = c_max / g_max;
+				bp.camera_pos.x = -(c_width  - g_width  * bp.scale) / 2.0;
+				bp.camera_pos.y = -(c_height - g_height * bp.scale) / 2.0;
+
+				bp.draw();
+			}
+		});
+	}
 }
 
 
@@ -471,65 +557,6 @@ pub fn run() {
 		[1, 1, 0, 0, 1, 1 ,1],
 	]);
 
-	{
-		let div = WrappedHtml::new("div").unwrap();
-		set_style!((&div){
-			"display": "flex";
-			"flex-direction": "column";
-			"width": "100%";
-			"height": "100%";
-			"overflow": "scroll";
-			"direction": "rtl";
-		});
-		side.append_child(&div).unwrap();
-
-		let div = Arc::new(div);
-		side.append_child(&create_button("Add", move |_| {
-			let div = div.clone();
-			let _ = futures::future_to_promise(async move {
-				let grid = from_clipboard().await;
-
-				// make it so the most top left cell is at (0, 0)
-				let min = grid.get_bounding_box().0;
-				let grid = Grid::from_iter(grid.into_iter().map(|p| p - min));
-
-				let bp = Viewport::new(grid);
-				set_style!((&bp.canvas){
-					"width": "100%";
-					"aspect-ratio": "1";
-				});
-				div.append_child(&bp.canvas).unwrap();
-
-				let bp = Arc::new(Mutex::new(bp));
-
-				canvas_resize({
-					let bp = bp.clone();
-					move |callback| if let Ok(mut bp) = bp.try_lock() {
-						callback(&mut bp);
-
-						let bb = bp.grid.get_bounding_box();
-
-						let g_width  = ((bb.1.x - bb.0.x) as f64 + 1.0) * CELL_SIZE;
-						let g_height = ((bb.1.y - bb.0.y) as f64 + 1.0) * CELL_SIZE;
-						let g_max = g_width.max(g_height);
-
-						let (c_width, c_height) = bp.dim.cast_inner::<f64>().into();
-						let c_max = c_width.max(c_height);
-
-						// make it so the entire grid is visible
-						bp.scale = c_max / g_max;
-						bp.camera_pos.x = -(c_width  - g_width  * bp.scale) / 2.0;
-						bp.camera_pos.y = -(c_height - g_height * bp.scale) / 2.0;
-
-						bp.draw();
-					}
-				});
-
-				return Ok(JsValue::NULL);
-			});
-		})).unwrap();
-	}
-
 	let viewer = InteractiveViewer::new(grid);
 	set_style!((&viewer.vp.canvas){
 		"width": "100%";
@@ -537,10 +564,34 @@ pub fn run() {
 	});
 	main.append_child(&viewer.vp.canvas).unwrap();
 
+	set_style!((&viewer.blueprint_div){
+		"display": "flex";
+		"flex-direction": "column";
+		"width": "100%";
+		"height": "100%";
+		"overflow": "scroll";
+		"direction": "rtl";
+	});
+	side.append_child(&viewer.blueprint_div).unwrap();
+
 	let viewer = Arc::new(Mutex::new(viewer));
 	viewer.lock().unwrap().draw();
 
 	init_canvas(viewer.clone());
+
+	side.append_child(&create_button("Add", {
+		let viewer = viewer.clone();
+		move |_| {
+			let viewer = viewer.clone();
+			let _ = futures::future_to_promise(async move {
+				let grid = from_clipboard().await;
+
+				InteractiveViewer::add_blueprint(viewer, grid);
+
+				return Ok(JsValue::NULL);
+			});
+		}
+	})).unwrap();
 
 	let di = DynamicInterval::new(w, {
 		let viewer = viewer.clone();

@@ -8,11 +8,11 @@ It can also be used as a library.
 ## Features
 - [x] Infinite canvas
 - [x] Save state (in base64 using clipboard)
-- [ ] QOL for the editor
+- [x] QOL for the editor
 	- [x] Undo and redo
 	- [x] Rectangle selection
 	- [x] Copy-paste
-	- [ ] Blueprints
+	- [x] Blueprints
 - [ ] Coloring
 - [x] Adjustable play rate with pause/unpause
 - [ ] Custom rules via rulestrings (i.e. different "universes")
