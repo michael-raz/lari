@@ -402,7 +402,7 @@ impl InteractiveViewer {
 
 	fn add_blueprint(this: Arc<Mutex<Self>>, grid: Grid) {
 		// make it so the most top left cell is at (0, 0)
-		let min = grid.get_bounding_box().0;
+		let min = grid.get_aabb().0;
 		let grid = Grid::from_iter(grid.into_iter().map(|p| p - min));
 
 		let div = WrappedHtml::new("div").unwrap();
@@ -464,7 +464,7 @@ impl InteractiveViewer {
 			move |callback| if let Ok(mut bp) = bp.try_lock() {
 				callback(&mut bp);
 
-				let bb = bp.grid.get_bounding_box();
+				let bb = bp.grid.get_aabb();
 
 				let g_width  = ((bb.1.x - bb.0.x) as f64 + 1.0) * CELL_SIZE;
 				let g_height = ((bb.1.y - bb.0.y) as f64 + 1.0) * CELL_SIZE;

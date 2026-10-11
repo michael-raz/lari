@@ -95,8 +95,8 @@ impl Grid {
 		}
 	}
 
-	/// Get the bound box of the grid.
-	pub fn get_bounding_box(&self) -> (Vec2, Vec2) {
+	/// Get the bounding box of the grid.
+	pub fn get_aabb(&self) -> (Vec2, Vec2) {
 		if self.cells.len() <= 0 {
 			return ((0, 0).into(), (0, 0).into())
 		}
