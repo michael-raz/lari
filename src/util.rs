@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use flate2::{Compression, read::{ZlibEncoder, ZlibDecoder}};
 use base64::prelude::*;
 use base64::DecodeError;
@@ -5,11 +7,8 @@ use std::borrow::Cow;
 use std::ops::{Shl, Shr};
 use std::io::{self, Read, Write, BufRead};
 
-
-
 macro_rules! read_le {
 	($src:expr, $t:ty) => {{
-		use ::std::io::Read;
 		let mut buf = [0u8; ::std::mem::size_of::<$t>()];
 		$src.read_exact(&mut buf)?;
 

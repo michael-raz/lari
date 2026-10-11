@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 #[doc(hidden)]
 pub use std::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
 

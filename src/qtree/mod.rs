@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::ops::DerefMut;
 use std::io::{self, Read, Write};
 
@@ -334,7 +336,7 @@ impl Dir{
 	];
 }
 
-struct Children<T> {
+pub(crate) struct Children<T> {
 	top_left:  Option<Box<QtreeNode<T>>>,
 	top_right: Option<Box<QtreeNode<T>>>,
 	bot_left:  Option<Box<QtreeNode<T>>>,
