@@ -1,10 +1,3 @@
-//! # Rules
-//! Let `n` be the number of live neighbors.
-//! 1. If alive and `n != 2 && n != 3` then die; otherwise remain alive
-//! 2. If dead and `n == 3` then become alive
-
-
-
 use std::collections::HashSet;
 use std::io::{self, Read, Write};
 
@@ -14,7 +7,66 @@ pub use crate::vec2::*;
 use crate::qtree::*;
 
 
-/// A grid where Conway's Game of Life is played.
+/// A logically infinite grid of cells to simulate Conway's Game of Life.
+///
+///
+/// ### Conway's Game of Life's Rules
+/// Every cell is either alive or dead.
+///
+/// At every step of simulation, the following pseudocode is applied to every cell:
+/// ```ignore
+/// fn step_cell(cell: Cell, neighbor_count: u8) -> Cell {
+/// 	if cell.is_alive() {
+/// 		if neighbor_count == 2 || neighbor_count == 3 {
+/// 			return Cell::alive();
+/// 		} else {
+/// 			return Cell::dead();
+/// 		}
+/// 	} else {
+/// 		if neighbor_count == 3 {
+/// 			return Cell::alive();
+/// 		} else {
+/// 			return Cell::dead();
+/// 		}
+/// 	}
+/// }
+/// ```
+///
+/// ### Examples
+/// A still life that will always remain the same, forever.
+/// ```
+/// use lari::Grid;
+///
+/// let mut grid = Grid::from_table(&[
+/// 	[1, 1],
+/// 	[1, 1],
+/// ]);
+/// let init = grid.clone();
+///
+/// assert_eq!(grid, init);
+///
+/// grid.step(1);
+/// assert_eq!(grid, init);
+///
+/// grid.step(100);
+/// assert_eq!(grid, init);
+/// ```
+///
+/// A glider is a 'spaceship', which is just something that moves.
+/// ```
+/// use lari::Grid;
+///
+/// let mut glider = Grid::from_table(&[
+/// 	[0, 0, 1],
+/// 	[1, 0, 1],
+/// 	[0, 1, 1],
+/// ]);
+/// let after = Grid::from_iter(glider.get_alive().map(|&p| p + (1, 1)));
+///
+/// glider.step(4);
+///
+/// assert_eq!(glider, after);
+/// ```
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Grid {
 	cells: HashSet<Vec2>,
@@ -22,11 +74,34 @@ pub struct Grid {
 
 impl Grid {
 	/// Creates an empty grid.
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let grid = Grid::new();
+	///
+	/// assert_eq!(grid.get_alive().count(), 0);
+	/// ```
 	pub fn new() -> Self {
 		Default::default()
 	}
 
 	/// Step the simulation by `count` steps.
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let mut a = Grid::soup(100, 100);
+	/// let mut b = a.clone();
+	///
+	/// a.step(10);
+	/// b.step(5);
+	/// b.step(5);
+	///
+	/// assert_eq!(a, b);
+	/// ```
 	pub fn step(&mut self, count: usize) {
 		let offsets: [(i64, i64); 8] = [
 			(-1, -1), ( 0, -1), ( 1, -1),
@@ -76,18 +151,30 @@ impl Grid {
 		}
 	}
 
-	/// Returns true if the cell at `pos` is alive.
-	pub fn get_cell(&self, pos: &Vec2) -> bool {
-		self.cells.contains(pos)
-	}
-
-	/// Get the positions of cells that are alive.
-	pub fn get_alive(&self) -> impl Iterator<Item=&'_ Vec2> {
-		self.cells.iter()
-	}
-
 	/// Set the value at cell `pos` to alive if `value` is true.
-	pub fn set_cell(&mut self, pos: Vec2, value: bool) {
+	///
+	/// # Example
+	/// ```
+	/// use lari::{Grid, Vec2};
+	///
+	/// let mut grid = Grid::new();
+	///
+	/// let p = Vec2::from((0, 0));
+	///
+	/// assert_eq!(grid.get_cell(&p), false);
+	///
+	/// grid.set_cell(p, true);
+	/// assert_eq!(grid.get_cell(&p), true);
+	///
+	/// grid.set_cell(p, false);
+	/// assert_eq!(grid.get_cell(&p), false);
+	///
+	/// grid.set_cell(p, true);
+	/// grid.step(1);
+	/// assert_eq!(grid.get_cell(&p), false);
+	/// ```
+	pub fn set_cell(&mut self, pos: impl Into<Vec2>, value: bool) {
+		let pos = pos.into();
 		if value {
 			self.cells.insert(pos);
 		} else {
@@ -95,7 +182,51 @@ impl Grid {
 		}
 	}
 
-	/// Get the bounding box of the grid.
+	/// Returns true if the cell at `pos` is alive.
+	///
+	/// # Example
+	/// See [set_cell][Grid::set_cell].
+	pub fn get_cell(&self, pos: &Vec2) -> bool {
+		self.cells.contains(pos)
+	}
+
+	/// Get the positions of all of the cells that are alive.
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let mut grid = Grid::from_table(&[
+	/// 	[1, 1, 0],
+	/// 	[1, 0, 1],
+	/// 	[0, 1, 1],
+	/// ]);
+	///
+	/// assert_eq!(grid.get_alive().count(), 6);
+	///
+	/// grid.step(100);
+	///
+	/// assert_eq!(grid.get_alive().count(), 6);
+	/// ```
+	pub fn get_alive(&self) -> impl Iterator<Item=&'_ Vec2> {
+		self.cells.iter()
+	}
+
+	/// Get the axis aligned bounding box (aabb) of the grid.
+	///
+	/// The first returned `Vec2` is the bottom left,
+	/// and the the second is the top right.
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let grid = Grid::soup(100, 100);
+	///
+	/// let (bot_left, top_right) = grid.get_aabb();
+	/// assert!(bot_left.x <= top_right.x);
+	/// assert!(bot_left.y <= top_right.y);
+	/// ```
 	pub fn get_aabb(&self) -> (Vec2, Vec2) {
 		if self.cells.len() <= 0 {
 			return ((0, 0).into(), (0, 0).into())
@@ -119,22 +250,65 @@ impl Grid {
 	}
 
 	/// Initialize a grid using a table of 1's and 0's.
+	///
+	/// Intended to be a more ergonomic way to hardcode patterns.
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let mut a = Grid::new();
+	/// a.set_cell((2, 0), true);
+	/// a.set_cell((0, 1), true);
+	/// a.set_cell((2, 1), true);
+	/// a.set_cell((1, 2), true);
+	/// a.set_cell((2, 2), true);
+	///
+	/// let b = Grid::from_table(&[
+	/// 	[0, 0, 1],
+	/// 	[1, 0, 1],
+	/// 	[0, 1, 1],
+	/// ]);
+	///
+	/// assert_eq!(a, b);
+	/// ```
 	pub fn from_table<const N: usize>(src: &[[u8; N]]) -> Self {
 		let alive = src.into_iter().flat_map(|row| row.into_iter()).enumerate()
 			.filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
 
 		alive.fold(Default::default(), |mut out, (x, y)| {
-			out.set_cell((x, y).into(), true);
+			out.set_cell((x, y), true);
 			out
 		})
 	}
 
 	/// Writes the state of this grid into `out`.
+	///
+	/// This function is the inverse of [load][Grid::load].
+	///
+	/// # Example
+	/// ```
+	/// use lari::Grid;
+	///
+	/// let grid = Grid::soup(100, 100);
+	///
+	/// let mut bytes = vec![];
+	/// grid.save(&mut bytes).unwrap();
+	///
+	/// let other = Grid::load(&mut std::io::Cursor::new(bytes)).unwrap();
+	///
+	/// assert_eq!(grid, other);
+	/// ```
 	pub fn save(&self, out: &mut impl Write) -> io::Result<()> {
 		Qtree::from_iter(self.cells.iter().map(|&pos| (pos, ()))).save(out)
 	}
 
 	/// Reads from `src` to create a [Grid].
+	///
+	/// This function is the inverse of [save][Grid::save].
+	///
+	/// # Example
+	/// See [save][Grid::save].
 	pub fn load(src: &mut impl Read) -> io::Result<Self> {
 		Ok(Self::from_iter(Qtree::load(src)?.into_iter().map(|(p, _)| p)))
 	}

@@ -1,8 +1,22 @@
 //! A module for the
-//! [Run Length Encoded][https://conwaylife.com/wiki/Run_Length_Encoded] (RLE)
+//! [Run Length Encoded](https://conwaylife.com/wiki/Run_Length_Encoded) (RLE)
 //! format.
 //!
 //! RLE is a common format for storing Conway's Game of Life patterns.
+//!
+//! ### Example
+//! ```
+//! use lari::{Grid, rle};
+//!
+//! let grid = Grid::soup(100, 100);
+//!
+//! let mut bytes = vec![];
+//! let count = rle::from_grid(&grid, &mut bytes).unwrap();
+//! assert_eq!(bytes.len(), count);
+//!
+//! let out = rle::to_grid(&mut std::io::Cursor::new(bytes)).unwrap();
+//! assert_eq!(out, grid);
+//! ```
 
 use std::io::{self, Read, Write};
 use std::str::FromStr;
@@ -10,7 +24,7 @@ use std::str::FromStr;
 use crate::cgol::*;
 
 /// Create a [Grid] from the
-/// [RLE][https://conwaylife.com/wiki/Run_Length_Encoded] format.
+/// [RLE](https://conwaylife.com/wiki/Run_Length_Encoded) format.
 pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
 	use regex::Regex;
 
@@ -77,7 +91,7 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
 }
 
 /// Save a [Grid] to the
-/// [RLE][https://conwaylife.com/wiki/Run_Length_Encoded] format.
+/// [RLE](https://conwaylife.com/wiki/Run_Length_Encoded) format.
 pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
 	let aabb = grid.get_aabb();
 	let width = aabb.1.x - aabb.0.x;

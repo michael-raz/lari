@@ -1,7 +1,13 @@
+#[doc(hidden)]
 pub use std::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
+
 use std::cmp::Ordering;
 use std::fmt::{self, Debug, Formatter};
 
+/// A 2 dimensional vector with helpers (e.g., addition).
+///
+/// Supports all numeric types, but defaults to using `i64`.
+/// _Can_ be used with non-numeric types, but is not intended.
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Vec2<T=i64>
 	where T: Copy,
@@ -16,7 +22,7 @@ impl<T> Vec2<T>
 		Self{x, y}
 	}
 
-	pub fn cast_inner<U: Copy + From<T>>(self) -> Vec2<U> {
+	pub(crate) fn cast_inner<U: Copy + From<T>>(self) -> Vec2<U> {
 		Vec2::<U>::new(
 			self.x.into(),
 			self.y.into(),
@@ -33,13 +39,12 @@ macro_rules! vec2 {
 }
 pub use vec2;
 
-#[macro_export]
 macro_rules! vec2_cast {
 	($v:expr => $t:ty) => {
 		Vec2::new($v.x as $t, $v.y as $t)
 	};
 }
-pub use vec2_cast;
+pub(crate) use vec2_cast;
 
 impl<T> From<(T, T)> for Vec2<T>
 	where T: Copy,
