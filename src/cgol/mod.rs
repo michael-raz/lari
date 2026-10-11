@@ -136,6 +136,31 @@ impl Grid {
 
 	/// Reads from `src` to create a [Grid].
 	pub fn load(src: &mut impl Read) -> io::Result<Self> {
+		Ok(Self::from_iter(Qtree::load(src)?.into_iter().map(|(p, _)| p)))
+	}
+
+	/// Generate a random grid.
+	///
+	/// Random grid meaning random cells are set to alive within the bounds.
+	/// The bounds are specified by `width` and `height`.
+	/// Note this will only generate cells in the positve `(+x, +y)` quadrant of the grid.
+	#[cfg(feature="rand")]
+	pub fn soup(width: u64, height: u64) -> Self {
+		if width == 0 || height == 0 {
+			return Self::new();
+		}
+
+		let count = rand::rng().sample(rand::distr::Uniform::new(0, width * height).unwrap());
+
+		use rand::RngExt;
+		let mut width = rand::rng().sample_iter(rand::distr::Uniform::new(0, width).unwrap());
+		let mut height = rand::rng().sample_iter(rand::distr::Uniform::new(0, height).unwrap());
+
+		let mut iter = std::iter::from_fn(|| Some((
+			width.next().unwrap() as i64,
+			height.next().unwrap() as i64,
+		).into()));
+
 		return Grid::from_iter(iter.take(count as usize));
 	}
 }
