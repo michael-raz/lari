@@ -131,18 +131,12 @@ impl Grid {
 
 	/// Writes the state of this grid into `out`.
 	pub fn save(&self, out: &mut impl Write) -> io::Result<()> {
-		let mut q = Qtree::new();
-		for &p in self.get_alive() {
-			q.insert(p, ());
-		}
-		q.save(out)
+		Qtree::from_iter(self.cells.iter().map(|&pos| (pos, ()))).save(out)
 	}
 
 	/// Reads from `src` to create a [Grid].
 	pub fn load(src: &mut impl Read) -> io::Result<Self> {
-		let q = Qtree::load(src)?.into_iter().map(|(p, _)| p);
-
-		return Ok(Self::from_iter(q));
+		return Grid::from_iter(iter.take(count as usize));
 	}
 }
 

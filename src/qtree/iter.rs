@@ -101,6 +101,16 @@ impl<T> IntoIterator for Qtree<T> {
 		Qiter::new(self)
 	}
 }
+impl<T> FromIterator<(Vec2, T)> for Qtree<T> {
+	fn from_iter<I: IntoIterator<Item=(Vec2, T)>>(iter: I) -> Self {
+		let mut out = Qtree::new();
+		for (pos, value) in iter {
+			out.insert(pos, value);
+		}
+
+		return out;
+	}
+}
 
 
 
