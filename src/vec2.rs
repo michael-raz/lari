@@ -160,6 +160,42 @@ impl<T> Div<T> for Vec2<T>
 	}
 }
 
+impl<T> Add<(T, T)> for Vec2<T>
+	where T: Copy + Add<T, Output=T>,
+{
+	type Output = Self;
+	fn add(mut self, rhs: (T, T)) -> Self::Output {
+		self += Vec2::from(rhs);
+		self
+	}
+}
+impl<T> AddAssign<(T, T)> for Vec2<T>
+	where T: Copy + Add<T, Output=T>,
+{
+	fn add_assign(&mut self, rhs: (T, T)) {
+		self.x = self.x + rhs.0;
+		self.y = self.y + rhs.1;
+	}
+}
+
+impl<T> Sub<(T, T)> for Vec2<T>
+	where T: Copy + Sub<T, Output=T>,
+{
+	type Output = Self;
+	fn sub(mut self, rhs: (T, T)) -> Self::Output {
+		self -= Vec2::from(rhs);
+		self
+	}
+}
+impl<T> SubAssign<(T, T)> for Vec2<T>
+	where T: Copy + Sub<T, Output=T>,
+{
+	fn sub_assign(&mut self, rhs: (T, T)) {
+		self.x = self.x - rhs.0;
+		self.y = self.y - rhs.1;
+	}
+}
+
 impl<T> PartialOrd for Vec2<T>
 	where T: Copy + PartialOrd,
 {
