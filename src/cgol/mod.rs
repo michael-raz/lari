@@ -119,7 +119,7 @@ impl Grid {
 	}
 
 	/// Initialize a grid using a table of 1's and 0's.
-	pub fn from_bits<const N: usize>(src: &[[u8; N]]) -> Self {
+	pub fn from_table<const N: usize>(src: &[[u8; N]]) -> Self {
 		let alive = src.into_iter().flat_map(|row| row.into_iter()).enumerate()
 			.filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
 
@@ -168,39 +168,39 @@ pub(crate) fn gen_test_grids() -> impl Iterator<Item=Grid> {
 		Grid::new(),
 
 		// one cell
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[1],
 		]),
 
 		// block (stable)
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[1, 1],
 			[1, 1],
 		]),
 
 		// tub (stable)
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[0, 1, 0],
 			[1, 0, 1],
 			[0, 1, 0],
 		]),
 
 		// blinker (period of 2)
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[0, 1, 0],
 			[0, 1, 0],
 			[0, 1, 0],
 		]),
 
 		// glider
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[0, 0, 1],
 			[1, 0, 1],
 			[0, 1, 1],
 		]),
 
 		// acorn
-		Grid::from_bits(&[
+		Grid::from_table(&[
 			[0, 1, 0, 0, 0, 0 ,0],
 			[0, 0, 0, 1, 0, 0 ,0],
 			[1, 1, 0, 0, 1, 1 ,1],
@@ -231,12 +231,12 @@ fn save_load() {
 
 #[test]
 fn blinker() {
-	let init = Grid::from_bits(&[
+	let init = Grid::from_table(&[
 		[0, 0, 0],
 		[1, 1, 1],
 		[0, 0, 0],
 	]);
-	let other = Grid::from_bits(&[
+	let other = Grid::from_table(&[
 		[0, 1, 0],
 		[0, 1, 0],
 		[0, 1, 0],

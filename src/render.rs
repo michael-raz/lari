@@ -551,7 +551,7 @@ pub fn run() {
 	div.append_child(&main).unwrap();
 
 	// acorn
-	let grid = Grid::from_bits(&[
+	let grid = Grid::from_table(&[
 		[0, 1, 0, 0, 0, 0 ,0],
 		[0, 0, 0, 1, 0, 0 ,0],
 		[1, 1, 0, 0, 1, 1 ,1],
