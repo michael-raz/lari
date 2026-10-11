@@ -71,7 +71,7 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
 		match value {
 			"o" | "b" => {
 				for _ in 0..count {
-					out.set_cell(pos, value == "o");
+					out.set(pos, value == "o");
 					pos.x += 1
 				}
 			}
@@ -93,7 +93,7 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
 /// Save a [Grid] to the
 /// [RLE](https://conwaylife.com/wiki/Run_Length_Encoded) format.
 pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
-	let aabb = grid.get_aabb();
+	let aabb = grid.aabb();
 	let width = aabb.1.x - aabb.0.x;
 	let height = aabb.1.y - aabb.0.y;
 
@@ -163,7 +163,7 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
 #[test]
 fn rle_save_load() {
 	fn assert_match(grid: Grid) {
-		let bb = grid.get_aabb();
+		let bb = grid.aabb();
 		let grid = Grid::from_iter(grid.into_iter().map(|p| p - bb.0));
 
 		let mut raw = vec![];

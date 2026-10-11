@@ -213,8 +213,8 @@ impl Viewport {
 
 		// group cells together and draw them as one
 		self.ctx.set_fill_style_str(ALIVE_COLOR);
-		let mut unsued_cells = HashSet::<&Vec2>::from_iter(self.grid.get_alive());
-		for pos in self.grid.get_alive() {
+		let mut unsued_cells = HashSet::<&Vec2>::from_iter(self.grid.alive());
+		for pos in self.grid.alive() {
 			if !unsued_cells.remove(pos) {
 				continue;
 			}
@@ -321,8 +321,8 @@ impl InteractiveViewer {
 
 	fn apply_action(&mut self) {
 		match self.action_log[self.action_idx] {
-			Action::SetCell(pos, value) => self.vp.grid.set_cell(pos, value),
-			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set_cell(pos, value)),
+			Action::SetCell(pos, value) => self.vp.grid.set(pos, value),
+			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set(pos, value)),
 			Action::SetGrid{ref to, ..} => self.vp.grid = to.clone(),
 		}
 		self.action_idx += 1;
@@ -330,8 +330,8 @@ impl InteractiveViewer {
 	fn unapply_action(&mut self) {
 		self.action_idx -= 1;
 		match self.action_log[self.action_idx] {
-			Action::SetCell(pos, value) => self.vp.grid.set_cell(pos, !value),
-			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set_cell(pos, !value)),
+			Action::SetCell(pos, value) => self.vp.grid.set(pos, !value),
+			Action::MultiSetCell(ref delta) => delta.iter().for_each(|&(pos, value)| self.vp.grid.set(pos, !value)),
 			Action::SetGrid{ref from, ..} => self.vp.grid = from.clone(),
 		}
 	}
@@ -402,7 +402,7 @@ impl InteractiveViewer {
 
 	fn add_blueprint(this: Arc<Mutex<Self>>, grid: Grid) {
 		// make it so the most top left cell is at (0, 0)
-		let min = grid.get_aabb().0;
+		let min = grid.aabb().0;
 		let grid = Grid::from_iter(grid.into_iter().map(|p| p - min));
 
 		let div = WrappedHtml::new("div").unwrap();
@@ -464,7 +464,7 @@ impl InteractiveViewer {
 			move |callback| if let Ok(mut bp) = bp.try_lock() {
 				callback(&mut bp);
 
-				let bb = bp.grid.get_aabb();
+				let bb = bp.grid.aabb();
 
 				let g_width  = ((bb.1.x - bb.0.x) as f64 + 1.0) * CELL_SIZE;
 				let g_height = ((bb.1.y - bb.0.y) as f64 + 1.0) * CELL_SIZE;
@@ -719,7 +719,7 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
 					pos.y.floor() as i64,
 				).into();
 
-				let alive = viewer.vp.grid.get_cell(&pos);
+				let alive = viewer.vp.grid.get(&pos);
 				let action = Action::SetCell(pos, !alive);
 				viewer.do_action(action);
 
@@ -752,7 +752,7 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
 					let x_bound = sel.0.x..sel.1.x;
 					let y_bound = sel.0.y..sel.1.y;
 
-					let sel = viewer.vp.grid.get_alive()
+					let sel = viewer.vp.grid.alive()
 						.filter(|pos| x_bound.contains(&pos.x) && y_bound.contains(&pos.y))
 						.copied()
 						.collect::<HashSet<_>>();

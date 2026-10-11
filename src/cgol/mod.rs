@@ -61,7 +61,7 @@ use crate::qtree::*;
 /// 	[1, 0, 1],
 /// 	[0, 1, 1],
 /// ]);
-/// let after = Grid::from_iter(glider.get_alive().map(|&p| p + (1, 1)));
+/// let after = Grid::from_iter(glider.alive().map(|&p| p + (1, 1)));
 ///
 /// glider.step(4);
 ///
@@ -81,7 +81,7 @@ impl Grid {
 	///
 	/// let grid = Grid::new();
 	///
-	/// assert_eq!(grid.get_alive().count(), 0);
+	/// assert_eq!(grid.alive().count(), 0);
 	/// ```
 	pub fn new() -> Self {
 		Default::default()
@@ -151,7 +151,7 @@ impl Grid {
 		}
 	}
 
-	/// Set the value at cell `pos` to alive if `value` is true.
+	/// Set the value of the cell at `pos` to alive if `value` is true.
 	///
 	/// # Example
 	/// ```
@@ -161,19 +161,19 @@ impl Grid {
 	///
 	/// let p = Vec2::from((0, 0));
 	///
-	/// assert_eq!(grid.get_cell(&p), false);
+	/// assert_eq!(grid.get(&p), false);
 	///
-	/// grid.set_cell(p, true);
-	/// assert_eq!(grid.get_cell(&p), true);
+	/// grid.set(p, true);
+	/// assert_eq!(grid.get(&p), true);
 	///
-	/// grid.set_cell(p, false);
-	/// assert_eq!(grid.get_cell(&p), false);
+	/// grid.set(p, false);
+	/// assert_eq!(grid.get(&p), false);
 	///
-	/// grid.set_cell(p, true);
+	/// grid.set(p, true);
 	/// grid.step(1);
-	/// assert_eq!(grid.get_cell(&p), false);
+	/// assert_eq!(grid.get(&p), false);
 	/// ```
-	pub fn set_cell(&mut self, pos: impl Into<Vec2>, value: bool) {
+	pub fn set(&mut self, pos: impl Into<Vec2>, value: bool) {
 		let pos = pos.into();
 		if value {
 			self.cells.insert(pos);
@@ -185,8 +185,8 @@ impl Grid {
 	/// Returns true if the cell at `pos` is alive.
 	///
 	/// # Example
-	/// See [set_cell][Grid::set_cell].
-	pub fn get_cell(&self, pos: &Vec2) -> bool {
+	/// See [set][Grid::set].
+	pub fn get(&self, pos: &Vec2) -> bool {
 		self.cells.contains(pos)
 	}
 
@@ -202,13 +202,13 @@ impl Grid {
 	/// 	[0, 1, 1],
 	/// ]);
 	///
-	/// assert_eq!(grid.get_alive().count(), 6);
+	/// assert_eq!(grid.alive().count(), 6);
 	///
 	/// grid.step(100);
 	///
-	/// assert_eq!(grid.get_alive().count(), 6);
+	/// assert_eq!(grid.alive().count(), 6);
 	/// ```
-	pub fn get_alive(&self) -> impl Iterator<Item=&'_ Vec2> {
+	pub fn alive(&self) -> impl Iterator<Item=&'_ Vec2> {
 		self.cells.iter()
 	}
 
@@ -223,11 +223,11 @@ impl Grid {
 	///
 	/// let grid = Grid::soup(100, 100);
 	///
-	/// let (bot_left, top_right) = grid.get_aabb();
+	/// let (bot_left, top_right) = grid.aabb();
 	/// assert!(bot_left.x <= top_right.x);
 	/// assert!(bot_left.y <= top_right.y);
 	/// ```
-	pub fn get_aabb(&self) -> (Vec2, Vec2) {
+	pub fn aabb(&self) -> (Vec2, Vec2) {
 		if self.cells.len() <= 0 {
 			return ((0, 0).into(), (0, 0).into())
 		}
@@ -258,11 +258,11 @@ impl Grid {
 	/// use lari::Grid;
 	///
 	/// let mut a = Grid::new();
-	/// a.set_cell((2, 0), true);
-	/// a.set_cell((0, 1), true);
-	/// a.set_cell((2, 1), true);
-	/// a.set_cell((1, 2), true);
-	/// a.set_cell((2, 2), true);
+	/// a.set((2, 0), true);
+	/// a.set((0, 1), true);
+	/// a.set((2, 1), true);
+	/// a.set((1, 2), true);
+	/// a.set((2, 2), true);
 	///
 	/// let b = Grid::from_table(&[
 	/// 	[0, 0, 1],
@@ -277,7 +277,7 @@ impl Grid {
 			.filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
 
 		alive.fold(Default::default(), |mut out, (x, y)| {
-			out.set_cell((x, y), true);
+			out.set((x, y), true);
 			out
 		})
 	}
