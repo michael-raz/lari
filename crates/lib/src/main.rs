@@ -33,6 +33,13 @@ fn main() {
 	crate::render::run();
 }
 
+pub(crate) mod vec2;
+pub(crate) mod util;
+pub(crate) mod qtree;
+
+mod cgol;
+pub use cgol::*;
+
 #[cfg(not(target_family="wasm"))]
 fn main() {
 	todo!();
