@@ -19,6 +19,9 @@
 					cargo
 					lld
 					wasm-bindgen-cli_0_2_126
+
+					rustfmt
+					clippy
 				];
 			};
 		};
