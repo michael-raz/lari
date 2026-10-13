@@ -3,8 +3,14 @@ name = "lari"
 version.workspace = true
 edition.workspace = true
 description.workspace = true
+readme.workspace = true
 license.workspace = true
 repository.workspace = true
+rust-version.workspace = true
+
+[package.metadata.doc.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 regex = "1.13.1"

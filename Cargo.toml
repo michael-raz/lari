@@ -8,5 +8,6 @@ version = "0.1.0"
 edition = "2024"
 license = "GPL-2.0-or-later"
 description = "A library for simulating Conway's Game of Life."
+readme = true
 repository = "https://github.com/michael-raz/lari"
 rust-version = "1.87.0"

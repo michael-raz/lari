@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 //! # Lari
 //! Lari is both a library and binary for simulating
 //! [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
