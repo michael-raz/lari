@@ -4,7 +4,7 @@
 pub use std::ops::{Add, AddAssign, Sub, SubAssign, Neg, Mul, Div};
 
 use std::cmp::Ordering;
-use std::fmt::{self, Debug, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 
 /// A 2 dimensional vector with helpers (e.g., addition).
 ///
@@ -71,11 +71,22 @@ impl<T> Into<(T, T)> for Vec2<T>
 	}
 }
 
-impl<T> Debug for Vec2<T>
-	where T: Copy + Debug,
+impl<T> Display for Vec2<T>
+where
+	T: Copy + Display,
 {
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-		write!(f, "[{:?} {:?}]", self.x, self.y)?;
+		write!(f, "({}, {})", self.x, self.y)?;
+		return Ok(());
+	}
+}
+
+impl<T> Debug for Vec2<T>
+where
+	T: Copy + Debug,
+{
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+		write!(f, "({:?}, {:?})", self.x, self.y)?;
 		return Ok(());
 	}
 }
