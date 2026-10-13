@@ -63,12 +63,12 @@ where
         Self::from((*x, *y))
     }
 }
-impl<T> Into<(T, T)> for Vec2<T>
+impl<T> From<Vec2<T>> for (T, T)
 where
     T: Copy,
 {
-    fn into(self) -> (T, T) {
-        (self.x, self.y)
+    fn from(vec: Vec2<T>) -> Self {
+        (vec.x, vec.y)
     }
 }
 
@@ -78,7 +78,7 @@ where
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)?;
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -88,7 +88,7 @@ where
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "({:?}, {:?})", self.x, self.y)?;
-        return Ok(());
+        Ok(())
     }
 }
 

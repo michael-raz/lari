@@ -28,20 +28,20 @@ impl<T> Qtree<T> {
         let mut out = Self::new();
         out.height = height;
 
-        return out;
+        out
     }
 
     /// Insert `value` at `pos`.
     ///
     /// Replaces the value at `pos`, if it already had one.
     pub fn insert(&mut self, pos: Vec2, value: T) {
-        let coords = self.to_dirs(pos);
+        let coords = self.as_dirs(pos);
         self.insert_by_dirs(coords, value);
     }
 
     /// Gets the value at `pos`.
     pub fn get(&mut self, pos: Vec2) -> Option<&mut T> {
-        let coords = self.to_dirs(pos);
+        let coords = self.as_dirs(pos);
         self.get_owner(coords, false)
             .and_then(|opt| opt.as_mut())
             .map(|b| match b.deref_mut() {
@@ -52,7 +52,7 @@ impl<T> Qtree<T> {
 
     /// Removes the value at `pos`.
     pub fn remove(&mut self, pos: Vec2) -> Option<T> {
-        let coords = self.to_dirs(pos);
+        let coords = self.as_dirs(pos);
         self.get_owner(coords, false)
             .and_then(|opt| opt.take())
             .map(|x| match *x {
@@ -93,7 +93,7 @@ impl<T> Qtree<T> {
         fn dim(num: i64) -> u8 {
             let positive = if num < 0 { num.abs() } else { num + 1 };
 
-            return log2_ceil(positive as u64) as u8 + 1;
+            log2_ceil(positive as u64) as u8 + 1
         }
 
         dim(pos.x).max(dim(pos.y))
@@ -139,7 +139,7 @@ impl<T> Qtree<T> {
     ///
     /// Note that this method will increase the height (if needed) such that
     /// `self` is large enough to contain `pos`.
-    fn to_dirs(&mut self, mut pos: Vec2) -> Vec<Dir> {
+    fn as_dirs(&mut self, mut pos: Vec2) -> Vec<Dir> {
         let upper = Self::bounding_height(pos);
 
         // grow height to be less than or equal to upper
@@ -157,17 +157,17 @@ impl<T> Qtree<T> {
             out.push(dir);
         }
 
-        return out;
+        out
     }
 
     fn to_pos(dirs: &[Dir]) -> Vec2 {
-        let mut iter = dirs.into_iter().rev();
+        let mut iter = dirs.iter().rev();
         let mut out = (dir_to_vec2(iter.next().unwrap()) - 1) / 2;
         for (i, dir) in iter.enumerate() {
             out += dir_to_vec2(dir) * (1i64 << i);
         }
 
-        return out;
+        out
     }
 
     /// Helper method to return the 'owner' of the value at `pos`.
@@ -196,7 +196,7 @@ impl<T> Qtree<T> {
 
         let out = p.children_mut().get_mut(last);
 
-        return Some(out);
+        Some(out)
     }
 }
 impl Qtree<()> {
@@ -216,7 +216,7 @@ impl Qtree<()> {
                 }
             }
 
-            return Ok(());
+            Ok(())
         }
 
         out.write_all(&(self.height as u64).to_le_bytes())?;
@@ -226,7 +226,7 @@ impl Qtree<()> {
 
         let out = out.into_inner()?;
 
-        return Ok(());
+        Ok(())
     }
 
     pub fn load(src: &mut impl Read) -> io::Result<Self> {
@@ -263,7 +263,7 @@ impl Qtree<()> {
             }
         }
 
-        return Ok(out);
+        Ok(out)
     }
 }
 
@@ -438,7 +438,7 @@ fn qchain() {
     macro_rules! assert_chain {
         ($coords:expr, $chain:expr) => {
             let mut x = Qtree::<()>::new();
-            let out = x.to_dirs($coords.into());
+            let out = x.as_dirs($coords.into());
             assert_eq!(out, $chain);
         };
         (h = $h:expr, $coords:expr, $chain:expr) => {
@@ -449,7 +449,7 @@ fn qchain() {
             }
             assert_eq!(x.height, $h);
 
-            let out = x.to_dirs($coords.into());
+            let out = x.as_dirs($coords.into());
             assert_eq!(out, $chain);
         };
     }

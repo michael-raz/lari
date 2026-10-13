@@ -15,19 +15,19 @@ pub use crate::vec2::*;
 /// At every step of simulation, the following pseudocode is applied to every cell:
 /// ```ignore
 /// fn step_cell(cell: Cell, neighbor_count: u8) -> Cell {
-/// 	if cell.is_alive() {
-/// 		if neighbor_count == 2 || neighbor_count == 3 {
-/// 			return Cell::alive();
-/// 		} else {
-/// 			return Cell::dead();
-/// 		}
-/// 	} else {
-/// 		if neighbor_count == 3 {
-/// 			return Cell::alive();
-/// 		} else {
-/// 			return Cell::dead();
-/// 		}
-/// 	}
+///     if cell.is_alive() {
+///         if neighbor_count == 2 || neighbor_count == 3 {
+///             return Cell::alive();
+///         } else {
+///             return Cell::dead();
+///         }
+///     } else {
+///         if neighbor_count == 3 {
+///             return Cell::alive();
+///         } else {
+///             return Cell::dead();
+///         }
+///     }
 /// }
 /// ```
 ///
@@ -37,8 +37,8 @@ pub use crate::vec2::*;
 /// use lari::Grid;
 ///
 /// let mut grid = Grid::from_table(&[
-/// 	[1, 1],
-/// 	[1, 1],
+///     [1, 1],
+///     [1, 1],
 /// ]);
 /// let init = grid.clone();
 ///
@@ -56,9 +56,9 @@ pub use crate::vec2::*;
 /// use lari::Grid;
 ///
 /// let mut glider = Grid::from_table(&[
-/// 	[0, 0, 1],
-/// 	[1, 0, 1],
-/// 	[0, 1, 1],
+///     [0, 0, 1],
+///     [1, 0, 1],
+///     [0, 1, 1],
 /// ]);
 /// let after = Grid::from_iter(glider.alive().map(|&p| p + (1, 1)));
 ///
@@ -200,9 +200,9 @@ impl Grid {
     /// use lari::Grid;
     ///
     /// let mut grid = Grid::from_table(&[
-    /// 	[1, 1, 0],
-    /// 	[1, 0, 1],
-    /// 	[0, 1, 1],
+    ///     [1, 1, 0],
+    ///     [1, 0, 1],
+    ///     [0, 1, 1],
     /// ]);
     ///
     /// assert_eq!(grid.alive().count(), 6);
@@ -231,7 +231,7 @@ impl Grid {
     /// assert!(bot_left.y <= top_right.y);
     /// ```
     pub fn aabb(&self) -> (Vec2, Vec2) {
-        if self.cells.len() <= 0 {
+        if self.cells.is_empty() {
             return ((0, 0).into(), (0, 0).into());
         }
 
@@ -246,7 +246,7 @@ impl Grid {
             y_max = y_max.max(pos.y);
         }
 
-        return ((x_min, y_min).into(), (x_max, y_max).into());
+        ((x_min, y_min).into(), (x_max, y_max).into())
     }
 
     /// Initialize a grid using a table of 1's and 0's.
@@ -265,17 +265,17 @@ impl Grid {
     /// a.set((2, 2), true);
     ///
     /// let b = Grid::from_table(&[
-    /// 	[0, 0, 1],
-    /// 	[1, 0, 1],
-    /// 	[0, 1, 1],
+    ///     [0, 0, 1],
+    ///     [1, 0, 1],
+    ///     [0, 1, 1],
     /// ]);
     ///
     /// assert_eq!(a, b);
     /// ```
     pub fn from_table<const N: usize>(src: &[[u8; N]]) -> Self {
         let alive = src
-            .into_iter()
-            .flat_map(|row| row.into_iter())
+            .iter()
+            .flat_map(|row| row.iter())
             .enumerate()
             .filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
 

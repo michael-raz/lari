@@ -66,7 +66,7 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
     let mut out = Grid::new();
     let re = Regex::new(r"(\d*)(b|o|\$|!)").unwrap();
     for (_, [count, value]) in re.captures_iter(&data[off..]).map(|c| c.extract()) {
-        let count = if count.len() > 0 {
+        let count = if !count.is_empty() {
             u64::from_str(count).unwrap()
         } else {
             1
@@ -90,7 +90,7 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
         }
     }
 
-    return Err(io::ErrorKind::InvalidData.into());
+    Err(io::ErrorKind::InvalidData.into())
 }
 
 /// Save a [Grid] to the
@@ -101,7 +101,7 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
     let height = aabb.1.y - aabb.0.y;
 
     let mut cells = Vec::from_iter(grid.cells.iter().map(|&p| p - aabb.0));
-    cells.sort_unstable_by(|a, b| (a.y, a.x).cmp(&(b.y, b.x)));
+    cells.sort_unstable_by_key(|a| (a.y, a.x));
 
     let mut count = 0;
 
@@ -154,7 +154,7 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
     out.write_all(trailer.as_bytes())?;
     count += trailer.len();
 
-    return Ok(count);
+    Ok(count)
 }
 
 #[test]

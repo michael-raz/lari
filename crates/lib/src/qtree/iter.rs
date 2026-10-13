@@ -13,7 +13,7 @@ impl<T> Qiter<T> {
             out = children.get(d).as_ref().unwrap();
         }
 
-        return out;
+        out
     }
 
     fn get_mut(&mut self) -> &'_ mut QtreeNode<T> {
@@ -24,7 +24,7 @@ impl<T> Qiter<T> {
             out = children.get_mut(d).as_mut().unwrap();
         }
 
-        return out;
+        out
     }
 
     fn pop(&mut self) -> QtreeNode<T> {
@@ -53,8 +53,7 @@ impl<T> Qiter<T> {
             let next_dir = Dir::ALL
                 .into_iter()
                 .map(|d| (d, children.get(d)))
-                .filter(|(_, c)| c.is_some())
-                .next();
+                .find(|(_, c)| c.is_some());
 
             if let Some((d, Some(c))) = next_dir {
                 let is_leaf = c.is_leaf();
@@ -84,7 +83,7 @@ impl<T> Qiter<T> {
         // try to initialize the stack
         out.set_stack();
 
-        return out;
+        out
     }
 }
 impl<T> Iterator for Qiter<T> {
@@ -95,7 +94,7 @@ impl<T> Iterator for Qiter<T> {
             return None;
         }
         let pos = Qtree::<T>::to_pos(&self.stack);
-        return Some((pos, self.pop().into_value()));
+        Some((pos, self.pop().into_value()))
     }
 }
 impl<T> IntoIterator for Qtree<T> {
@@ -113,7 +112,7 @@ impl<T> FromIterator<(Vec2, T)> for Qtree<T> {
             out.insert(pos, value);
         }
 
-        return out;
+        out
     }
 }
 

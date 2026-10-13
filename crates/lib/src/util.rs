@@ -23,16 +23,16 @@ pub(crate) fn log2_ceil(num: u64) -> u32 {
         m += 1;
     };
 
-    return m;
+    m
 }
 
 pub(crate) fn shift<T: Shl<Output = T> + Shr<Output = T> + From<i8>>(num: T, shift_by: i8) -> T {
     if shift_by > 0 {
-        return num << shift_by.into();
+        num << shift_by.into()
     } else if shift_by < 0 {
-        return num >> (-shift_by).into();
+        num >> (-shift_by).into()
     } else {
-        return num;
+        num
     }
 }
 
@@ -55,7 +55,7 @@ impl<T: Write> BitWriter<T> {
             self.flush()?;
         }
 
-        return Ok(self.inner);
+        Ok(self.inner)
     }
 
     pub fn write(&mut self, value: bool) -> io::Result<()> {
@@ -68,7 +68,7 @@ impl<T: Write> BitWriter<T> {
             self.flush()?;
         }
 
-        return Ok(());
+        Ok(())
     }
 
     fn flush(&mut self) -> io::Result<()> {
@@ -76,7 +76,7 @@ impl<T: Write> BitWriter<T> {
         self.buffer = 0;
         self.bit_offset = 0;
 
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -106,7 +106,7 @@ impl<T: BufRead> Iterator for BitIter<T> {
         let out = (self.buffer.unbounded_shr(self.bit_offset as u32) & 1) > 0;
         self.bit_offset = (self.bit_offset + 1) % 8;
 
-        return Some(Ok(out));
+        Some(Ok(out))
     }
 }
 pub(crate) fn read_bits(src: impl BufRead) -> impl Iterator<Item = io::Result<bool>> {
