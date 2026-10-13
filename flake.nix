@@ -7,7 +7,7 @@
 		let
 			system = "x86_64-linux";
 			pkgs = import nixpkgs { inherit system; };
-			name = "lari";
+			name = "lari-web";
 		in
 		{
 			devShells.${system}.default = pkgs.mkShell {

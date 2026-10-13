@@ -126,10 +126,18 @@ dependencies = [
 name = "lari"
 version = "0.1.0"
 dependencies = [
+ "rand",
+ "regex",
+]
+
+[[package]]
+name = "lari-web"
+version = "0.1.0"
+dependencies = [
  "base64",
  "flate2",
  "js-sys",
- "rand",
+ "lari",
  "regex",
  "wasm-bindgen",
  "web-sys",

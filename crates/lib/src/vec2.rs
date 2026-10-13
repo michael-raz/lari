@@ -24,7 +24,7 @@ impl<T> Vec2<T>
 		Self{x, y}
 	}
 
-	pub(crate) fn cast_inner<U: Copy + From<T>>(self) -> Vec2<U> {
+	pub fn cast_inner<U: Copy + From<T>>(self) -> Vec2<U> {
 		Vec2::<U>::new(
 			self.x.into(),
 			self.y.into(),
@@ -41,12 +41,13 @@ macro_rules! vec2 {
 }
 pub use vec2;
 
+#[macro_export]
 macro_rules! vec2_cast {
 	($v:expr => $t:ty) => {
 		Vec2::new($v.x as $t, $v.y as $t)
 	};
 }
-pub(crate) use vec2_cast;
+pub use vec2_cast;
 
 impl<T> From<(T, T)> for Vec2<T>
 	where T: Copy,

@@ -1,13 +1,10 @@
-cfg_select! {
-	target_family="wasm" => {
-		mod wasm_helpers;
-		mod dom;
-		mod render;
-	}
-	_ => {}
-}
+#![allow(unused)]
 
-#[cfg(target_family="wasm")]
+mod wasm_helpers;
+mod dom;
+mod render;
+mod util;
+
 fn main() {
 	use crate::wasm_helpers::{println, eprintln};
 
@@ -31,16 +28,4 @@ fn main() {
 	}));
 
 	crate::render::run();
-}
-
-pub(crate) mod vec2;
-pub(crate) mod util;
-pub(crate) mod qtree;
-
-mod cgol;
-pub use cgol::*;
-
-#[cfg(not(target_family="wasm"))]
-fn main() {
-	todo!();
 }

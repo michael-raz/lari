@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::collections::{HashSet, VecDeque};
 use std::borrow::Cow;
 
-use crate::cgol::*;
+use lari::*;
 
 use crate::util::*;
 
