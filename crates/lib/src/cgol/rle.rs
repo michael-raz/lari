@@ -100,7 +100,7 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
     let width = aabb.1.x - aabb.0.x;
     let height = aabb.1.y - aabb.0.y;
 
-    let mut cells = Vec::from_iter(grid.cells.iter().map(|&p| p - aabb.0));
+    let mut cells = Vec::from_iter(grid.cells.iter().copied());
     cells.sort_unstable_by_key(|a| (a.y, a.x));
 
     let mut count = 0;
