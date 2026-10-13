@@ -3,9 +3,8 @@ use std::io::{self, Read, Write};
 
 pub mod rle;
 
-pub use crate::vec2::*;
 use crate::qtree::*;
-
+pub use crate::vec2::*;
 
 /// A logically infinite grid of cells to simulate Conway's Game of Life.
 ///
@@ -69,379 +68,351 @@ use crate::qtree::*;
 /// ```
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Grid {
-	cells: HashSet<Vec2>,
+    cells: HashSet<Vec2>,
 }
 
 impl Grid {
-	/// Creates an empty grid.
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let grid = Grid::new();
-	///
-	/// assert_eq!(grid.alive().count(), 0);
-	/// ```
-	pub fn new() -> Self {
-		Default::default()
-	}
+    /// Creates an empty grid.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let grid = Grid::new();
+    ///
+    /// assert_eq!(grid.alive().count(), 0);
+    /// ```
+    pub fn new() -> Self {
+        Default::default()
+    }
 
-	/// Step the simulation by `count` steps.
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let mut a = Grid::soup(100, 100);
-	/// let mut b = a.clone();
-	///
-	/// a.step(10);
-	/// b.step(5);
-	/// b.step(5);
-	///
-	/// assert_eq!(a, b);
-	/// ```
-	pub fn step(&mut self, count: usize) {
-		let offsets: [(i64, i64); 8] = [
-			(-1, -1), ( 0, -1), ( 1, -1),
-			(-1,  0),           ( 1,  0),
-			(-1,  1), ( 0,  1), ( 1,  1),
-		];
+    /// Step the simulation by `count` steps.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let mut a = Grid::soup(100, 100);
+    /// let mut b = a.clone();
+    ///
+    /// a.step(10);
+    /// b.step(5);
+    /// b.step(5);
+    ///
+    /// assert_eq!(a, b);
+    /// ```
+    pub fn step(&mut self, count: usize) {
+        let offsets: [(i64, i64); 8] = [
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+            (-1, 0),
+            (1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 1),
+        ];
 
-		let mut visited = HashSet::new();
-		let mut queue: Vec<Vec2> = vec![];
-		let mut scratch = HashSet::new();
+        let mut visited = HashSet::new();
+        let mut queue: Vec<Vec2> = vec![];
+        let mut scratch = HashSet::new();
 
-		for _ in 0..count {
-			visited.reserve(self.cells.len() * 8);
-			queue.reserve(self.cells.len() * 8);
-			scratch.reserve(self.cells.len() * 8);
+        for _ in 0..count {
+            visited.reserve(self.cells.len() * 8);
+            queue.reserve(self.cells.len() * 8);
+            scratch.reserve(self.cells.len() * 8);
 
-			visited.clear();
-			queue.clear();
-			scratch.clear();
+            visited.clear();
+            queue.clear();
+            scratch.clear();
 
-			queue.extend(self.cells.iter());
-			visited.extend(queue.iter());
+            queue.extend(self.cells.iter());
+            visited.extend(queue.iter());
 
-			while let Some(cur) = queue.pop() {
-				let alive = self.cells.contains(&cur);
-				let neighbors = offsets.iter()
-					.map(|o| cur.add(Vec2::from(o)));
+            while let Some(cur) = queue.pop() {
+                let alive = self.cells.contains(&cur);
+                let neighbors = offsets.iter().map(|o| cur.add(Vec2::from(o)));
 
-				let mut acount = 0;
-				for n in neighbors {
-					if self.cells.contains(&n) {
-						acount += 1;
-					}
+                let mut acount = 0;
+                for n in neighbors {
+                    if self.cells.contains(&n) {
+                        acount += 1;
+                    }
 
-					if alive && !visited.contains(&n) {
-						queue.push(n);
-						visited.insert(n);
-					}
-				}
+                    if alive && !visited.contains(&n) {
+                        queue.push(n);
+                        visited.insert(n);
+                    }
+                }
 
-				if acount == 3 || (alive && acount == 2) {
-					scratch.insert(cur);
-				}
-			}
+                if acount == 3 || (alive && acount == 2) {
+                    scratch.insert(cur);
+                }
+            }
 
-			std::mem::swap(&mut self.cells, &mut scratch);
-		}
-	}
+            std::mem::swap(&mut self.cells, &mut scratch);
+        }
+    }
 
-	/// Set the value of the cell at `pos` to alive if `value` is true.
-	///
-	/// # Example
-	/// ```
-	/// use lari::{Grid, Vec2};
-	///
-	/// let mut grid = Grid::new();
-	///
-	/// let p = Vec2::from((0, 0));
-	///
-	/// assert_eq!(grid.get(&p), false);
-	///
-	/// grid.set(p, true);
-	/// assert_eq!(grid.get(&p), true);
-	///
-	/// grid.set(p, false);
-	/// assert_eq!(grid.get(&p), false);
-	///
-	/// grid.set(p, true);
-	/// grid.step(1);
-	/// assert_eq!(grid.get(&p), false);
-	/// ```
-	pub fn set(&mut self, pos: impl Into<Vec2>, value: bool) {
-		let pos = pos.into();
-		if value {
-			self.cells.insert(pos);
-		} else {
-			self.cells.remove(&pos);
-		}
-	}
+    /// Set the value of the cell at `pos` to alive if `value` is true.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::{Grid, Vec2};
+    ///
+    /// let mut grid = Grid::new();
+    ///
+    /// let p = Vec2::from((0, 0));
+    ///
+    /// assert_eq!(grid.get(&p), false);
+    ///
+    /// grid.set(p, true);
+    /// assert_eq!(grid.get(&p), true);
+    ///
+    /// grid.set(p, false);
+    /// assert_eq!(grid.get(&p), false);
+    ///
+    /// grid.set(p, true);
+    /// grid.step(1);
+    /// assert_eq!(grid.get(&p), false);
+    /// ```
+    pub fn set(&mut self, pos: impl Into<Vec2>, value: bool) {
+        let pos = pos.into();
+        if value {
+            self.cells.insert(pos);
+        } else {
+            self.cells.remove(&pos);
+        }
+    }
 
-	/// Returns true if the cell at `pos` is alive.
-	///
-	/// # Example
-	/// See [set][Grid::set].
-	pub fn get(&self, pos: &Vec2) -> bool {
-		self.cells.contains(pos)
-	}
+    /// Returns true if the cell at `pos` is alive.
+    ///
+    /// # Example
+    /// See [set][Grid::set].
+    pub fn get(&self, pos: &Vec2) -> bool {
+        self.cells.contains(pos)
+    }
 
-	/// Get the positions of all of the cells that are alive.
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let mut grid = Grid::from_table(&[
-	/// 	[1, 1, 0],
-	/// 	[1, 0, 1],
-	/// 	[0, 1, 1],
-	/// ]);
-	///
-	/// assert_eq!(grid.alive().count(), 6);
-	///
-	/// grid.step(100);
-	///
-	/// assert_eq!(grid.alive().count(), 6);
-	/// ```
-	pub fn alive(&self) -> impl Iterator<Item=&'_ Vec2> {
-		self.cells.iter()
-	}
+    /// Get the positions of all of the cells that are alive.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let mut grid = Grid::from_table(&[
+    /// 	[1, 1, 0],
+    /// 	[1, 0, 1],
+    /// 	[0, 1, 1],
+    /// ]);
+    ///
+    /// assert_eq!(grid.alive().count(), 6);
+    ///
+    /// grid.step(100);
+    ///
+    /// assert_eq!(grid.alive().count(), 6);
+    /// ```
+    pub fn alive(&self) -> impl Iterator<Item = &'_ Vec2> {
+        self.cells.iter()
+    }
 
-	/// Get the axis aligned bounding box (aabb) of the grid.
-	///
-	/// The first returned `Vec2` is the bottom left,
-	/// and the the second is the top right.
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let grid = Grid::soup(100, 100);
-	///
-	/// let (bot_left, top_right) = grid.aabb();
-	/// assert!(bot_left.x <= top_right.x);
-	/// assert!(bot_left.y <= top_right.y);
-	/// ```
-	pub fn aabb(&self) -> (Vec2, Vec2) {
-		if self.cells.len() <= 0 {
-			return ((0, 0).into(), (0, 0).into())
-		}
+    /// Get the axis aligned bounding box (aabb) of the grid.
+    ///
+    /// The first returned `Vec2` is the bottom left,
+    /// and the the second is the top right.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let grid = Grid::soup(100, 100);
+    ///
+    /// let (bot_left, top_right) = grid.aabb();
+    /// assert!(bot_left.x <= top_right.x);
+    /// assert!(bot_left.y <= top_right.y);
+    /// ```
+    pub fn aabb(&self) -> (Vec2, Vec2) {
+        if self.cells.len() <= 0 {
+            return ((0, 0).into(), (0, 0).into());
+        }
 
-		let mut x_min = i64::MAX;
-		let mut x_max = i64::MIN;
-		let mut y_min = i64::MAX;
-		let mut y_max = i64::MIN;
-		for pos in self.cells.iter() {
-			x_min = x_min.min(pos.x);
-			x_max = x_max.max(pos.x);
-			y_min = y_min.min(pos.y);
-			y_max = y_max.max(pos.y);
-		}
+        let mut x_min = i64::MAX;
+        let mut x_max = i64::MIN;
+        let mut y_min = i64::MAX;
+        let mut y_max = i64::MIN;
+        for pos in self.cells.iter() {
+            x_min = x_min.min(pos.x);
+            x_max = x_max.max(pos.x);
+            y_min = y_min.min(pos.y);
+            y_max = y_max.max(pos.y);
+        }
 
-		return (
-			(x_min, y_min).into(),
-			(x_max, y_max).into(),
-		);
-	}
+        return ((x_min, y_min).into(), (x_max, y_max).into());
+    }
 
-	/// Initialize a grid using a table of 1's and 0's.
-	///
-	/// Intended to be a more ergonomic way to hardcode patterns.
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let mut a = Grid::new();
-	/// a.set((2, 0), true);
-	/// a.set((0, 1), true);
-	/// a.set((2, 1), true);
-	/// a.set((1, 2), true);
-	/// a.set((2, 2), true);
-	///
-	/// let b = Grid::from_table(&[
-	/// 	[0, 0, 1],
-	/// 	[1, 0, 1],
-	/// 	[0, 1, 1],
-	/// ]);
-	///
-	/// assert_eq!(a, b);
-	/// ```
-	pub fn from_table<const N: usize>(src: &[[u8; N]]) -> Self {
-		let alive = src.into_iter().flat_map(|row| row.into_iter()).enumerate()
-			.filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
+    /// Initialize a grid using a table of 1's and 0's.
+    ///
+    /// Intended to be a more ergonomic way to hardcode patterns.
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let mut a = Grid::new();
+    /// a.set((2, 0), true);
+    /// a.set((0, 1), true);
+    /// a.set((2, 1), true);
+    /// a.set((1, 2), true);
+    /// a.set((2, 2), true);
+    ///
+    /// let b = Grid::from_table(&[
+    /// 	[0, 0, 1],
+    /// 	[1, 0, 1],
+    /// 	[0, 1, 1],
+    /// ]);
+    ///
+    /// assert_eq!(a, b);
+    /// ```
+    pub fn from_table<const N: usize>(src: &[[u8; N]]) -> Self {
+        let alive = src
+            .into_iter()
+            .flat_map(|row| row.into_iter())
+            .enumerate()
+            .filter_map(|(i, &x)| (x > 0).then_some(((i % N) as i64, (i / N) as i64)));
 
-		alive.fold(Default::default(), |mut out, (x, y)| {
-			out.set((x, y), true);
-			out
-		})
-	}
+        alive.fold(Default::default(), |mut out, (x, y)| {
+            out.set((x, y), true);
+            out
+        })
+    }
 
-	/// Writes the state of this grid into `out`.
-	///
-	/// This function is the inverse of [load][Grid::load].
-	///
-	/// # Example
-	/// ```
-	/// use lari::Grid;
-	///
-	/// let grid = Grid::soup(100, 100);
-	///
-	/// let mut bytes = vec![];
-	/// grid.save(&mut bytes).unwrap();
-	///
-	/// let other = Grid::load(&mut std::io::Cursor::new(bytes)).unwrap();
-	///
-	/// assert_eq!(grid, other);
-	/// ```
-	pub fn save(&self, out: &mut impl Write) -> io::Result<()> {
-		Qtree::from_iter(self.cells.iter().map(|&pos| (pos, ()))).save(out)
-	}
+    /// Writes the state of this grid into `out`.
+    ///
+    /// This function is the inverse of [load][Grid::load].
+    ///
+    /// # Example
+    /// ```
+    /// use lari::Grid;
+    ///
+    /// let grid = Grid::soup(100, 100);
+    ///
+    /// let mut bytes = vec![];
+    /// grid.save(&mut bytes).unwrap();
+    ///
+    /// let other = Grid::load(&mut std::io::Cursor::new(bytes)).unwrap();
+    ///
+    /// assert_eq!(grid, other);
+    /// ```
+    pub fn save(&self, out: &mut impl Write) -> io::Result<()> {
+        Qtree::from_iter(self.cells.iter().map(|&pos| (pos, ()))).save(out)
+    }
 
-	/// Reads from `src` to create a [Grid].
-	///
-	/// This function is the inverse of [save][Grid::save].
-	///
-	/// # Example
-	/// See [save][Grid::save].
-	pub fn load(src: &mut impl Read) -> io::Result<Self> {
-		Ok(Self::from_iter(Qtree::load(src)?.into_iter().map(|(p, _)| p)))
-	}
+    /// Reads from `src` to create a [Grid].
+    ///
+    /// This function is the inverse of [save][Grid::save].
+    ///
+    /// # Example
+    /// See [save][Grid::save].
+    pub fn load(src: &mut impl Read) -> io::Result<Self> {
+        Ok(Self::from_iter(
+            Qtree::load(src)?.into_iter().map(|(p, _)| p),
+        ))
+    }
 
-	/// Generate a random grid.
-	///
-	/// Random grid meaning random cells are set to alive within the bounds.
-	/// The bounds are specified by `width` and `height`.
-	/// Note this will only generate cells in the positve `(+x, +y)` quadrant of the grid.
-	#[cfg(feature="rand")]
-	pub fn soup(width: u64, height: u64) -> Self {
-		if width == 0 || height == 0 {
-			return Self::new();
-		}
+    /// Generate a random grid.
+    ///
+    /// Random grid meaning random cells are set to alive within the bounds.
+    /// The bounds are specified by `width` and `height`.
+    /// Note this will only generate cells in the positve `(+x, +y)` quadrant of the grid.
+    #[cfg(feature = "rand")]
+    pub fn soup(width: u64, height: u64) -> Self {
+        if width == 0 || height == 0 {
+            return Self::new();
+        }
 
-		let count = rand::rng().sample(rand::distr::Uniform::new(0, width * height).unwrap());
+        let count = rand::rng().sample(rand::distr::Uniform::new(0, width * height).unwrap());
 
-		use rand::RngExt;
-		let mut width = rand::rng().sample_iter(rand::distr::Uniform::new(0, width).unwrap());
-		let mut height = rand::rng().sample_iter(rand::distr::Uniform::new(0, height).unwrap());
+        use rand::RngExt;
+        let mut width = rand::rng().sample_iter(rand::distr::Uniform::new(0, width).unwrap());
+        let mut height = rand::rng().sample_iter(rand::distr::Uniform::new(0, height).unwrap());
 
-		let iter = std::iter::from_fn(|| Some((
-			width.next().unwrap() as i64,
-			height.next().unwrap() as i64,
-		).into()));
+        let iter = std::iter::from_fn(|| {
+            Some((width.next().unwrap() as i64, height.next().unwrap() as i64).into())
+        });
 
-		return Grid::from_iter(iter.take(count as usize));
-	}
+        return Grid::from_iter(iter.take(count as usize));
+    }
 }
 
 impl IntoIterator for Grid {
-	type Item = Vec2;
-	type IntoIter = <HashSet<Self::Item> as IntoIterator>::IntoIter;
-	fn into_iter(self) -> Self::IntoIter {
-		self.cells.into_iter()
-	}
+    type Item = Vec2;
+    type IntoIter = <HashSet<Self::Item> as IntoIterator>::IntoIter;
+    fn into_iter(self) -> Self::IntoIter {
+        self.cells.into_iter()
+    }
 }
 impl FromIterator<Vec2> for Grid {
-	fn from_iter<T: IntoIterator<Item=Vec2>>(iter: T) -> Self {
-		Self{cells: HashSet::from_iter(iter)}
-	}
+    fn from_iter<T: IntoIterator<Item = Vec2>>(iter: T) -> Self {
+        Self {
+            cells: HashSet::from_iter(iter),
+        }
+    }
 }
-
-
 
 #[cfg(test)]
-pub(crate) fn gen_test_grids() -> impl Iterator<Item=Grid> {
-	vec![
-		// empty
-		Grid::new(),
-
-		// one cell
-		Grid::from_table(&[
-			[1],
-		]),
-
-		// block (stable)
-		Grid::from_table(&[
-			[1, 1],
-			[1, 1],
-		]),
-
-		// tub (stable)
-		Grid::from_table(&[
-			[0, 1, 0],
-			[1, 0, 1],
-			[0, 1, 0],
-		]),
-
-		// blinker (period of 2)
-		Grid::from_table(&[
-			[0, 1, 0],
-			[0, 1, 0],
-			[0, 1, 0],
-		]),
-
-		// glider
-		Grid::from_table(&[
-			[0, 0, 1],
-			[1, 0, 1],
-			[0, 1, 1],
-		]),
-
-		// acorn
-		Grid::from_table(&[
-			[0, 1, 0, 0, 0, 0 ,0],
-			[0, 0, 0, 1, 0, 0 ,0],
-			[1, 1, 0, 0, 1, 1 ,1],
-		]),
-	].into_iter()
+pub(crate) fn gen_test_grids() -> impl Iterator<Item = Grid> {
+    vec![
+        // empty
+        Grid::new(),
+        // one cell
+        Grid::from_table(&[[1]]),
+        // block (stable)
+        Grid::from_table(&[[1, 1], [1, 1]]),
+        // tub (stable)
+        Grid::from_table(&[[0, 1, 0], [1, 0, 1], [0, 1, 0]]),
+        // blinker (period of 2)
+        Grid::from_table(&[[0, 1, 0], [0, 1, 0], [0, 1, 0]]),
+        // glider
+        Grid::from_table(&[[0, 0, 1], [1, 0, 1], [0, 1, 1]]),
+        // acorn
+        Grid::from_table(&[
+            [0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+            [1, 1, 0, 0, 1, 1, 1],
+        ]),
+    ]
+    .into_iter()
 }
-
-
 
 #[test]
 fn save_load() {
-	fn assert_match(grid: Grid) {
-		let mut raw = vec![];
-		grid.save(&mut raw).unwrap();
+    fn assert_match(grid: Grid) {
+        let mut raw = vec![];
+        grid.save(&mut raw).unwrap();
 
-		let out = Grid::load(&mut io::Cursor::new(raw)).unwrap();
+        let out = Grid::load(&mut io::Cursor::new(raw)).unwrap();
 
-		assert_eq!(grid, out);
-	}
+        assert_eq!(grid, out);
+    }
 
-	gen_test_grids().for_each(|mut g| {
-		assert_match(g.clone());
-		g.step(100);
-		assert_match(g);
-	});
+    gen_test_grids().for_each(|mut g| {
+        assert_match(g.clone());
+        g.step(100);
+        assert_match(g);
+    });
 }
-
 
 #[test]
 fn blinker() {
-	let init = Grid::from_table(&[
-		[0, 0, 0],
-		[1, 1, 1],
-		[0, 0, 0],
-	]);
-	let other = Grid::from_table(&[
-		[0, 1, 0],
-		[0, 1, 0],
-		[0, 1, 0],
-	]);
+    let init = Grid::from_table(&[[0, 0, 0], [1, 1, 1], [0, 0, 0]]);
+    let other = Grid::from_table(&[[0, 1, 0], [0, 1, 0], [0, 1, 0]]);
 
-	let mut grid = init.clone();
+    let mut grid = init.clone();
 
-	assert_eq!(grid, init);
+    assert_eq!(grid, init);
 
-	grid.step(1);
-	assert_eq!(grid, other);
+    grid.step(1);
+    assert_eq!(grid, other);
 
-	grid.step(1);
-	assert_eq!(grid, init);
+    grid.step(1);
+    assert_eq!(grid, init);
 }

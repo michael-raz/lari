@@ -21,9 +21,9 @@
 //! assert_eq!(grid, after);
 //! ```
 
-pub(crate) mod vec2;
-pub(crate) mod util;
 pub(crate) mod qtree;
+pub(crate) mod util;
+pub(crate) mod vec2;
 
 mod cgol;
 pub use cgol::*;
