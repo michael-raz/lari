@@ -330,7 +330,7 @@ impl Grid {
 		let mut width = rand::rng().sample_iter(rand::distr::Uniform::new(0, width).unwrap());
 		let mut height = rand::rng().sample_iter(rand::distr::Uniform::new(0, height).unwrap());
 
-		let mut iter = std::iter::from_fn(|| Some((
+		let iter = std::iter::from_fn(|| Some((
 			width.next().unwrap() as i64,
 			height.next().unwrap() as i64,
 		).into()));

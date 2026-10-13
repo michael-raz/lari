@@ -1,3 +1,12 @@
 [workspace]
 resolver = "3"
 members = ["crates/lib", "crates/web"]
+default-members = ["crates/lib"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-2.0-or-later"
+description = "A library for simulating Conway's Game of Life."
+repository = "https://github.com/michael-raz/lari"
+rust-version = "1.87.0"
