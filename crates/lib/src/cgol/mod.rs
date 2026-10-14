@@ -339,7 +339,7 @@ impl Grid {
             Some((width.next().unwrap() as i64, height.next().unwrap() as i64).into())
         });
 
-        return Grid::from_iter(iter.take(count as usize));
+        Grid::from_iter(iter.take(count as usize))
     }
 }
 

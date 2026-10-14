@@ -22,7 +22,7 @@ impl WrappedHtml {
 
         let elm = doc.create_element(tag)?;
 
-        return Ok(Self { raw: elm });
+        Ok(Self { raw: elm })
     }
 }
 
@@ -43,7 +43,7 @@ impl<H: AsRef<Object>> WrappedHtml<H> {
         proto_get(self.raw.as_ref(), key)
     }
     pub fn set(&self, key: &str, value: &JsValue) -> Option<()> {
-        proto_set(self.raw.as_ref(), key, value.as_ref())
+        proto_set(self.raw.as_ref(), key, value)
     }
 }
 
@@ -59,12 +59,12 @@ impl<H: AsRef<EventTarget>> WrappedHtml<H> {
         let jsfunc = callback.as_ref().dyn_ref().ok_or(JsValue::NULL)?;
 
         let target: &EventTarget = self.raw.as_ref();
-        target.add_event_listener_with_callback(event_name, &jsfunc)?;
+        target.add_event_listener_with_callback(event_name, jsfunc)?;
 
         // is static _and_ it's in js's control, so best to have rust forget about it
         callback.forget();
 
-        return Ok(());
+        Ok(())
     }
 }
 

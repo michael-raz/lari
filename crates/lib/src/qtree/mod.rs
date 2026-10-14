@@ -392,7 +392,7 @@ fn qfrom<T: Copy>(
         q.insert(p, value);
     }
 
-    return (q, verify);
+    (q, verify)
 }
 
 #[test]

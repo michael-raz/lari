@@ -5,38 +5,35 @@ pub use web_sys::*;
 
 use std::borrow::Cow;
 
-#[cfg(target_family = "wasm")]
 macro_rules! println {
-	() => {
-		console::log_0();
-	};
-	($($arg:tt)*) => {
-		::web_sys::console::log_1(&format!($($arg)*).into())
-	};
+    () => {
+        console::log_0();
+    };
+    ($($arg:tt)*) => {
+        ::web_sys::console::log_1(&format!($($arg)*).into())
+    };
 }
 pub(crate) use println;
 
-#[cfg(target_family = "wasm")]
 macro_rules! eprintln {
-	() => {
-		console::error_0();
-	};
-	($($arg:tt)*) => {
-		::web_sys::console::error_1(&format!($($arg)*).into());
-	};
+    () => {
+        console::error_0();
+    };
+    ($($arg:tt)*) => {
+        ::web_sys::console::error_1(&format!($($arg)*).into());
+    };
 }
 pub(crate) use eprintln;
 
-#[cfg(target_family = "wasm")]
 macro_rules! dbg {
-	() => {
-		println!("[{}:{}]", file!(), line!())
-	};
-	($($x:expr),* $(,)?) => {
-		$(
-			println!("[{}:{}] {} = {:?}", file!(), line!(), stringify!($x), $x);
-		);*
-	};
+    () => {
+        println!("[{}:{}]", file!(), line!())
+    };
+    ($($x:expr),* $(,)?) => {
+        $(
+        println!("[{}:{}] {} = {:?}", file!(), line!(), stringify!($x), $x);
+        );*
+    };
 }
 pub(crate) use dbg;
 
@@ -53,7 +50,7 @@ where
 {
     let c = wrap(callback);
     target
-        .set_interval_with_callback_and_timeout_and_arguments_0(&c.as_ref().unchecked_ref(), rate)
+        .set_interval_with_callback_and_timeout_and_arguments_0(c.as_ref().unchecked_ref(), rate)
         .unwrap();
     c.forget();
 }
@@ -64,10 +61,10 @@ where
 {
     let c = wrap(callback);
     let out = target
-        .set_timeout_with_callback_and_timeout_and_arguments_0(&c.as_ref().unchecked_ref(), rate)?;
+        .set_timeout_with_callback_and_timeout_and_arguments_0(c.as_ref().unchecked_ref(), rate)?;
     c.forget();
 
-    return Ok(out);
+    Ok(out)
 }
 
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Advanced_JavaScript_objects/Object_prototypes
@@ -88,7 +85,7 @@ pub fn proto_get(obj: &Object, key: &str) -> Option<JsValue> {
             }
 
             let getter = desc.get_get().unwrap();
-            let value = getter.call(&root, ()).unwrap();
+            let value = getter.call(root, ()).unwrap();
 
             return Some(value);
         }
@@ -96,7 +93,7 @@ pub fn proto_get(obj: &Object, key: &str) -> Option<JsValue> {
         obj = Cow::Owned(Object::get_prototype_of(&obj));
     }
 
-    return None;
+    None
 }
 /// Traverse prototypes and set `key` to `value`.
 pub fn proto_set(obj: &Object, key: &str, value: &JsValue) -> Option<()> {
@@ -111,7 +108,7 @@ pub fn proto_set(obj: &Object, key: &str, value: &JsValue) -> Option<()> {
             let desc = Object::get_own_property_descriptor_str(&obj, key).unwrap();
 
             let getter = desc.get_set().unwrap();
-            getter.call(&root, (value,)).unwrap();
+            getter.call(root, (value,)).unwrap();
 
             return Some(());
         }
@@ -119,5 +116,5 @@ pub fn proto_set(obj: &Object, key: &str, value: &JsValue) -> Option<()> {
         obj = Cow::Owned(Object::get_prototype_of(&obj));
     }
 
-    return None;
+    None
 }

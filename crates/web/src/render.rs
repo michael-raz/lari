@@ -9,7 +9,6 @@ use crate::util::*;
 
 use crate::dom::*;
 use crate::wasm_helpers::*;
-use crate::wasm_helpers::{dbg, eprintln, println};
 
 const CELL_SIZE: f64 = 50.0;
 
@@ -125,7 +124,7 @@ impl<F: Fn() + 'static> DynamicInterval<F> {
 
         Self::repeat(out.clone());
 
-        return out;
+        out
     }
 
     fn repeat<T: Fn() + 'static>(me: Arc<Mutex<DynamicInterval<T>>>) {
@@ -206,11 +205,11 @@ impl Viewport {
         }
     }
 
-    fn from_screen_space(&self, pos: Vec2<f64>) -> Vec2<f64> {
+    fn map_from_screen_space(&self, pos: Vec2<f64>) -> Vec2<f64> {
         (pos + self.camera_pos) / self.scale / CELL_SIZE
     }
 
-    fn to_screen_space(&self, pos: Vec2) -> Vec2<f64> {
+    fn map_to_screen_space(&self, pos: Vec2) -> Vec2<f64> {
         vec2_cast!(pos => f64) * self.scale * CELL_SIZE - self.camera_pos
     }
 
@@ -420,8 +419,8 @@ impl InteractiveViewer {
 
         // draw rectangle selection
         if let Some((start, end)) = self.get_selection() {
-            let start = self.vp.to_screen_space(start);
-            let end = self.vp.to_screen_space(end);
+            let start = self.vp.map_to_screen_space(start);
+            let end = self.vp.map_to_screen_space(end);
 
             self.vp.ctx.set_stroke_style_str(RSEL_COLOR);
             self.vp
@@ -485,9 +484,10 @@ impl InteractiveViewer {
             move |_| {
                 let bp = bp.clone();
                 let _ = futures::future_to_promise(async move {
-                    to_clipboard(&bp.lock().unwrap().grid).await;
+                    let grid = bp.lock().unwrap().grid.clone();
+                    to_clipboard(&grid).await;
 
-                    return Ok(JsValue::NULL);
+                    Ok(JsValue::NULL)
                 });
             }
         });
@@ -624,7 +624,7 @@ pub fn run() {
 
                 InteractiveViewer::add_blueprint(viewer, grid);
 
-                return Ok(JsValue::NULL);
+                Ok(JsValue::NULL)
             });
         }
     }))
@@ -714,7 +714,7 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
                     }
 
                     // rectangle selection
-                    let pos = viewer.vp.from_screen_space(mpos);
+                    let pos = viewer.vp.map_from_screen_space(mpos);
                     let rsel = lmb && shift;
                     if (viewer.stopped_sel || viewer.rsel.is_none()) && rsel {
                         viewer.rsel = Some((pos, pos));
@@ -730,7 +730,7 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
 
                     viewer.draw();
 
-                    return Ok(JsValue::NULL);
+                    Ok(JsValue::NULL)
                 });
             }
         })
@@ -749,7 +749,7 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
                 let shift = e.shift_key();
 
                 if lmb && !shift {
-                    let pos = viewer.vp.from_screen_space(pos);
+                    let pos = viewer.vp.map_from_screen_space(pos);
                     let pos = (pos.x.floor() as i64, pos.y.floor() as i64).into();
 
                     let alive = viewer.vp.grid.get(&pos);
@@ -768,7 +768,6 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
             move |e: Event| {
                 let viewer = viewer.clone();
                 let _ = futures::future_to_promise(async move {
-                    let mut viewer = viewer.lock().unwrap();
                     let mut draw_flag = false;
 
                     let key: String = proto_get(e.as_ref(), "key").unwrap().as_string().unwrap();
@@ -789,31 +788,39 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
                     let undo = key == "z" && ctrl;
                     let redo = ctrl && (key == "Z" || key == "y");
 
+                    let selection = viewer.lock().unwrap().get_selection();
+
                     // copy selection
                     if (copy || cut)
-                        && let Some(sel) = viewer.get_selection()
+                        && let Some(sel) = selection
                     {
-                        let x_bound = sel.0.x..sel.1.x;
-                        let y_bound = sel.0.y..sel.1.y;
+                        let grid = {
+                            let mut viewer = viewer.lock().unwrap();
 
-                        let sel = viewer
-                            .vp
-                            .grid
-                            .alive()
-                            .filter(|pos| x_bound.contains(&pos.x) && y_bound.contains(&pos.y))
-                            .copied()
-                            .collect::<HashSet<_>>();
+                            let x_bound = sel.0.x..sel.1.x;
+                            let y_bound = sel.0.y..sel.1.y;
 
-                        if cut {
-                            let action =
-                                Action::MultiSetCell(sel.iter().map(|pos| (*pos, false)).collect());
-                            viewer.do_action(action);
-                        }
+                            let sel = viewer
+                                .vp
+                                .grid
+                                .alive()
+                                .filter(|pos| x_bound.contains(&pos.x) && y_bound.contains(&pos.y))
+                                .copied()
+                                .collect::<HashSet<_>>();
 
-                        let grid = Grid::from_iter(
-                            sel.into_iter()
-                                .map(|pos| (pos.x - x_bound.start, pos.y - y_bound.start).into()),
-                        );
+                            if cut {
+                                let action = Action::MultiSetCell(
+                                    sel.iter().map(|pos| (*pos, false)).collect(),
+                                );
+                                viewer.do_action(action);
+                            }
+
+                            Grid::from_iter(
+                                sel.into_iter().map(|pos| {
+                                    (pos.x - x_bound.start, pos.y - y_bound.start).into()
+                                }),
+                            )
+                        };
 
                         to_clipboard(&grid).await;
                         draw_flag = true;
@@ -822,6 +829,8 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
                     // paste
                     if paste {
                         let new_grid = from_clipboard().await;
+
+                        let mut viewer = viewer.lock().unwrap();
                         let action = Action::SetGrid {
                             from: viewer.vp.grid.clone(),
                             to: new_grid,
@@ -833,20 +842,20 @@ fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
                     }
 
                     if undo {
-                        viewer.undo_action();
+                        viewer.lock().unwrap().undo_action();
                         draw_flag = true;
                     }
 
                     if redo {
-                        viewer.redo_action();
+                        viewer.lock().unwrap().redo_action();
                         draw_flag = true;
                     }
 
                     if draw_flag {
-                        viewer.draw();
+                        viewer.lock().unwrap().draw();
                     }
 
-                    return Ok(JsValue::NULL);
+                    Ok(JsValue::NULL)
                 });
             }
         })
@@ -910,7 +919,7 @@ fn create_button<'a>(
 
     button.add_listener("click", callback).unwrap();
 
-    return button;
+    button
 }
 
 fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
@@ -927,7 +936,7 @@ fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
             viewer.do_action(action);
             viewer.draw();
 
-            return Ok(JsValue::NULL);
+            Ok(JsValue::NULL)
         });
     })
 }
@@ -939,13 +948,14 @@ fn create_save_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
             // NOTE: we clone grid here so that we don't hold onto the lock for
             //       viewer whilst awaiting a promise
             //       as doing so could cause a dead-lock
-            let viewer = viewer.lock().unwrap();
-            let grid = viewer.vp.grid.clone();
-            drop(viewer);
+            let grid = {
+                let viewer = viewer.lock().unwrap();
+                viewer.vp.grid.clone()
+            };
 
             to_clipboard(&grid).await;
 
-            return Ok(JsValue::NULL);
+            Ok(JsValue::NULL)
         });
     })
 }
