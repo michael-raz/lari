@@ -8,8 +8,8 @@ license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 
-[package.metadata.doc.rs]
-rustdoc-args = ["--cfg", "docsrs", "--all-features"]
+[package.metadata.docs.rs]
+all-features = true
 
 [dependencies]
 regex = "1.13.1"
