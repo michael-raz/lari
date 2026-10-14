@@ -1,0 +1,38 @@
+name: rust
+
+on:
+  push:
+    branches: [ "ci" ]
+  pull_request:
+    branches: [ "ci" ]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: cargo build
+      run: cargo build --workspace --all-feautres --verbose
+    - name: cargo test
+      run: cargo test --workspace --all-feautres --verbose
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: cargo clippy
+      run: cargo clippy --all-targets --all-features
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: cargo fmt
+      run: cargo fmt --all --check --verbose
