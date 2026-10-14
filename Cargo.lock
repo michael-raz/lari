@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "lari"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "rand",
  "regex",
@@ -132,7 +132,7 @@ dependencies = [
 
 [[package]]
 name = "lari-web"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "base64",
  "flate2",
