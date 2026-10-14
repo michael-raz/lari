@@ -19,9 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: cargo build
-      run: cargo build --workspace --all-feautres --verbose
+      run: cargo build --workspace --all-feautures --verbose
     - name: cargo test
-      run: cargo test --workspace --all-feautres --verbose
+      run: cargo test --workspace --all-feautures --verbose
 
   clippy:
     runs-on: ubuntu-latest
