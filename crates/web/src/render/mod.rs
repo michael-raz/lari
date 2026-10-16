@@ -3,6 +3,8 @@ use std::collections::{HashSet, VecDeque};
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
+type Am<T> = Arc<Mutex<T>>;
+
 use lari::*;
 
 use crate::util::*;
@@ -117,7 +119,7 @@ struct DynamicInterval<F: Fn() + 'static> {
     prev: Option<i32>,
 }
 impl<F: Fn() + 'static> DynamicInterval<F> {
-    fn new(window: Window, callback: F, rate: Option<u64>) -> Arc<Mutex<Self>> {
+    fn new(window: Window, callback: F, rate: Option<u64>) -> Am<Self> {
         let out = Arc::new(Mutex::new(Self {
             rate,
             callback,
@@ -130,7 +132,7 @@ impl<F: Fn() + 'static> DynamicInterval<F> {
         out
     }
 
-    fn repeat<T: Fn() + 'static>(me: Arc<Mutex<DynamicInterval<T>>>) {
+    fn repeat<T: Fn() + 'static>(me: Am<DynamicInterval<T>>) {
         let mut locked = me.lock().unwrap();
         if let Some(rate) = locked.rate {
             let cur = set_timeout(
@@ -151,7 +153,7 @@ impl<F: Fn() + 'static> DynamicInterval<F> {
         }
     }
 
-    fn set_rate(me: Arc<Mutex<Self>>, rate: Option<i32>) {
+    fn set_rate(me: Am<Self>, rate: Option<i32>) {
         let rate = rate.map(|n| n as u64);
 
         let mut locked = me.lock().unwrap();
@@ -312,7 +314,7 @@ pub fn run() {
         .unwrap();
 }
 
-fn init_canvas(viewer: Arc<Mutex<InteractiveViewer>>) {
+fn init_canvas(viewer: Am<InteractiveViewer>) {
     let window = WrappedHtml::own(window().unwrap());
     let canvas = &mut viewer.lock().unwrap().vp.canvas;
 
@@ -580,7 +582,7 @@ fn create_button<'a>(
     button
 }
 
-fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
+fn create_load_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
     create_button("Load", move |_| {
         let viewer = viewer.clone();
         let _ = futures::future_to_promise(async move {
@@ -599,7 +601,7 @@ fn create_load_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
     })
 }
 
-fn create_save_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
+fn create_save_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
     create_button("Save", move |_| {
         let viewer = viewer.clone();
         let _ = futures::future_to_promise(async move {
@@ -618,7 +620,7 @@ fn create_save_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
     })
 }
 
-fn create_play_button(viewer: Arc<Mutex<InteractiveViewer>>) -> WrappedHtml {
+fn create_play_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
     let button = WrappedHtml::new("button").unwrap();
     button
         .as_elm::<Node>()
@@ -646,7 +648,7 @@ fn from_slider(src: i32) -> Option<i32> {
     (src != 0).then(|| 50_000 / src / src)
 }
 fn create_slider<F: 'static + Fn()>(
-    di: Arc<Mutex<DynamicInterval<F>>>,
+    di: Am<DynamicInterval<F>>,
     label: Arc<WrappedHtml>,
 ) -> WrappedHtml {
     let slider = WrappedHtml::new("input").unwrap();
@@ -684,8 +686,8 @@ fn create_label() -> WrappedHtml {
 }
 
 fn create_controls<F>(
-    viewer: Arc<Mutex<InteractiveViewer>>,
-    di: Arc<Mutex<DynamicInterval<F>>>,
+    viewer: Am<InteractiveViewer>,
+    di: Am<DynamicInterval<F>>,
 ) -> WrappedHtml
 where
     F: 'static + Fn(),
