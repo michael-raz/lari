@@ -254,11 +254,12 @@ pub fn run() {
     ]);
 
     let viewer = InteractiveViewer::new(grid);
-    set_style!((&viewer.vp.canvas){
+    let vp = viewer.vp();
+    set_style!((&vp.canvas){
         "width": "100%";
         "height": "100%";
     });
-    main.append_child(&viewer.vp.canvas).unwrap();
+    main.append_child(&vp.canvas).unwrap();
 
     set_style!((&viewer.blueprint_div){
         "display": "flex";
@@ -297,7 +298,8 @@ pub fn run() {
             move || {
                 let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
                 if !viewer.paused {
-                    viewer.vp.grid.step(1);
+                    let mut vp = viewer.mut_vp();
+                    vp.grid.step(1);
                     viewer.draw();
                 }
             }
@@ -316,28 +318,29 @@ pub fn run() {
 
 fn init_canvas(viewer: Am<InteractiveViewer>) {
     let window = WrappedHtml::own(window().unwrap());
-    let canvas = &mut viewer.lock().unwrap().vp.canvas;
+    let mut viewer_ref = viewer.lock().unwrap();
+    let mut canvas = &mut viewer_ref.mut_vp().canvas;
 
     // TODO: _also_ use "mousewheel" event to support Safari
     //       https://developer.mozilla.org/en-US/docs/Web/API/Element/mousewheel_event
-    canvas
-        .add_listener("wheel", {
+    canvas.add_listener("wheel", {
             let viewer = viewer.clone();
             move |e: WheelEvent| {
-                let viewer = &mut viewer.lock().unwrap();
+                let mut viewer = viewer.lock().unwrap();
+                let vp = viewer.mut_vp();
 
                 let mpos: Vec2<f64> = (e.offset_x() as f64, e.offset_y() as f64).into();
 
-                let prev = viewer.vp.scale;
-                let delta = viewer.vp.scale * -0.1 * (e.delta_y()).signum();
-                viewer.vp.scale += delta;
+                let prev = vp.scale;
+                let delta = vp.scale * -0.1 * (e.delta_y()).signum();
+                vp.scale += delta;
 
-                let before = viewer.vp.camera_pos;
-                viewer.vp.camera_pos =
-                    (mpos + viewer.vp.camera_pos) * (viewer.vp.scale / prev) - mpos;
+                let before = vp.camera_pos;
+                vp.camera_pos =
+                    (mpos + vp.camera_pos) * (vp.scale / prev) - mpos;
 
                 if let Some(mut tmp) = viewer.cursor_pin {
-                    tmp -= before - viewer.vp.camera_pos;
+                    tmp -= before - viewer.vp().camera_pos;
 
                     viewer.cursor_pin = Some(tmp);
                 }
@@ -353,7 +356,7 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
             move |e: MouseEvent| {
                 let viewer = viewer.clone();
                 let _ = futures::future_to_promise(async move {
-                    let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
+                    let mut viewer = viewer.lock().unwrap();
 
                     let mpos: Vec2<f64> = (e.offset_x() as f64, e.offset_y() as f64).into();
 
@@ -364,17 +367,18 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                     // camera pannning
                     let pan = rmb && !shift;
                     if viewer.cursor_pin.is_none() && pan {
-                        viewer.cursor_pin = Some(mpos + viewer.vp.camera_pos);
+                        viewer.cursor_pin = Some(mpos + viewer.vp().camera_pos);
                     } else if !pan {
                         viewer.cursor_pin = None;
                     }
 
                     if let Some(pinpoint) = viewer.cursor_pin {
-                        viewer.vp.camera_pos = pinpoint - mpos;
+                        let vp = viewer.mut_vp();
+                        vp.camera_pos = pinpoint - mpos;
                     }
 
                     // rectangle selection
-                    let pos = viewer.vp.map_from_screen_space(mpos);
+                    let pos = viewer.vp().map_from_screen_space(mpos);
                     let rsel = lmb && shift;
                     if (viewer.stopped_sel || viewer.rsel.is_none()) && rsel {
                         viewer.rsel = Some((pos, pos));
@@ -401,7 +405,8 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
         .add_listener("mousedown", {
             let viewer = viewer.clone();
             move |e: MouseEvent| {
-                let viewer: &mut InteractiveViewer = &mut viewer.lock().unwrap();
+                let mut viewer = viewer.lock().unwrap();
+                let vp = viewer.mut_vp();
 
                 let pos: Vec2<f64> = (e.offset_x() as f64, e.offset_y() as f64).into();
 
@@ -409,10 +414,10 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                 let shift = e.shift_key();
 
                 if lmb && !shift {
-                    let pos = viewer.vp.map_from_screen_space(pos);
+                    let pos = vp.map_from_screen_space(pos);
                     let pos = (pos.x.floor() as i64, pos.y.floor() as i64).into();
 
-                    let alive = viewer.vp.grid.get(&pos);
+                    let alive = vp.grid.get(&pos);
                     let action = Action::SetCell(pos, !alive);
                     viewer.do_action(action);
 
@@ -456,12 +461,12 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                     {
                         let grid = {
                             let mut viewer = viewer.lock().unwrap();
+                            let vp = viewer.mut_vp();
 
                             let x_bound = sel.0.x..sel.1.x;
                             let y_bound = sel.0.y..sel.1.y;
 
-                            let sel = viewer
-                                .vp
+                            let sel = vp
                                 .grid
                                 .alive()
                                 .filter(|pos| x_bound.contains(&pos.x) && y_bound.contains(&pos.y))
@@ -491,8 +496,9 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                         let new_grid = from_clipboard().await;
 
                         let mut viewer = viewer.lock().unwrap();
+                        let vp = viewer.mut_vp();
                         let action = Action::SetGrid {
-                            from: viewer.vp.grid.clone(),
+                            from: vp.grid.clone(),
                             to: new_grid,
                         };
                         viewer.do_action(action);
@@ -531,7 +537,8 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
         let viewer = viewer.clone();
         move |callback| {
             if let Ok(mut viewer) = viewer.try_lock() {
-                callback(&mut viewer.vp);
+                let vp = viewer.mut_vp();
+                callback(vp);
                 viewer.draw();
             }
         }
@@ -539,8 +546,8 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
 }
 
 fn canvas_resize<B>(mut vp: B)
-// something like `for<'a> B: 'static FnMut() -> &'a mut Viewport` would be better
-// but requires generic associated types
+// something like `for<'a> B: 'static FnMut<'a>() -> &'a mut Viewport` would be better
+// but requires generic lifetime parameter for FnMut
 where
     B: 'static + FnMut(&mut dyn FnMut(&mut Viewport)),
 {
@@ -589,8 +596,10 @@ fn create_load_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
             let grid = from_clipboard().await;
 
             let mut viewer = viewer.lock().unwrap();
+            let vp = viewer.mut_vp();
+
             let action = Action::SetGrid {
-                from: viewer.vp.grid.clone(),
+                from: vp.grid.clone(),
                 to: grid,
             };
             viewer.do_action(action);
@@ -610,7 +619,8 @@ fn create_save_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
             //       as doing so could cause a dead-lock
             let grid = {
                 let viewer = viewer.lock().unwrap();
-                viewer.vp.grid.clone()
+                let vp = viewer.vp();
+                vp.grid.clone()
             };
 
             to_clipboard(&grid).await;

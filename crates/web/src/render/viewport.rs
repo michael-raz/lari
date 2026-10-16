@@ -1,16 +1,21 @@
 use super::*;
 
-pub struct Viewport {
-    pub grid: Grid,
-    pub canvas: WrappedHtml,
-    pub ctx: CanvasRenderingContext2d,
+use slotmap::DefaultKey;
+use slotmap::basic::SlotMap;
 
-    pub dim: Vec2<u32>,
-    pub camera_pos: Vec2<f64>,
-    pub scale: f64,
+type ViewportKey = DefaultKey;
+
+#[derive(Default)]
+struct Viewports {
+    map: SlotMap<ViewportKey, Viewport>,
 }
-impl Viewport {
-    pub fn new(grid: Grid) -> Self {
+
+impl Viewports {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn insert(&mut self, grid: Grid) -> ViewportKey {
         let canvas = WrappedHtml::new("canvas").unwrap();
         let ctx = canvas
             .as_elm::<HtmlCanvasElement>()
@@ -20,16 +25,39 @@ impl Viewport {
             .unwrap()
             .dyn_into::<CanvasRenderingContext2d>()
             .unwrap();
-        Self {
+
+        let out = Viewport {
             grid,
             canvas,
             ctx,
             dim: Default::default(),
             camera_pos: Default::default(),
             scale: 1.0,
-        }
+        };
+
+        self.map.insert(out)
     }
 
+    fn get(&self, key: ViewportKey) -> Option<&'_ Viewport> {
+        self.map.get(key)
+    }
+
+    fn get_mut(&mut self, key: ViewportKey) -> Option<&'_ mut Viewport> {
+        self.map.get_mut(key)
+    }
+}
+
+pub struct Viewport {
+    pub grid: Grid,
+    pub canvas: WrappedHtml,
+    pub ctx: CanvasRenderingContext2d,
+
+    pub dim: Vec2<u32>,
+    pub camera_pos: Vec2<f64>,
+    pub scale: f64,
+}
+
+impl Viewport {
     pub fn map_from_screen_space(&self, pos: Vec2<f64>) -> Vec2<f64> {
         (pos + self.camera_pos) / self.scale / CELL_SIZE
     }
@@ -103,13 +131,13 @@ impl Viewport {
             self.ctx.begin_path();
             while let Some(line) = lines.pop() {
                 macro_rules! with_screen_pos {
-					($($func:tt).*($pos:expr)) => {
-						$($func).*(
-							($pos.x as f64 * size) - self.camera_pos.x,
-							($pos.y as f64 * size) - self.camera_pos.y,
-						)
-					};
-				}
+                    ($($func:tt).*($pos:expr)) => {
+                        $($func).*(
+                            ($pos.x as f64 * size) - self.camera_pos.x,
+                            ($pos.y as f64 * size) - self.camera_pos.y,
+                        )
+                    };
+                }
 
                 with_screen_pos!(self.ctx.move_to(line.a));
                 with_screen_pos!(self.ctx.line_to(line.b));
@@ -139,7 +167,8 @@ impl Viewport {
 }
 
 pub struct InteractiveViewer {
-    pub vp: Viewport,
+    vps: Viewports,
+    vp: ViewportKey,
 
     pub paused: bool,
 
@@ -156,8 +185,11 @@ pub struct InteractiveViewer {
 }
 impl InteractiveViewer {
     pub fn new(grid: Grid) -> Self {
+        let mut vps = Viewports::new();
+        let vp = vps.insert(grid);
         Self {
-            vp: Viewport::new(grid),
+            vps,
+            vp,
             paused: true,
             blueprint_div: WrappedHtml::new("div").unwrap(),
             cursor_pin: None,
@@ -168,24 +200,36 @@ impl InteractiveViewer {
         }
     }
 
+    pub fn vp(&self) -> &'_ Viewport {
+        self.vps.get(self.vp).unwrap()
+    }
+
+    pub fn mut_vp(&mut self) -> &'_ mut Viewport {
+        self.vps.get_mut(self.vp).unwrap()
+    }
+
     fn apply_action(&mut self) {
+        let vp = self.vps.get_mut(self.vp).unwrap();
+
         match self.action_log[self.action_idx] {
-            Action::SetCell(pos, value) => self.vp.grid.set(pos, value),
+            Action::SetCell(pos, value) => vp.grid.set(pos, value),
             Action::MultiSetCell(ref delta) => delta
                 .iter()
-                .for_each(|&(pos, value)| self.vp.grid.set(pos, value)),
-            Action::SetGrid { ref to, .. } => self.vp.grid = to.clone(),
+                .for_each(|&(pos, value)| vp.grid.set(pos, value)),
+            Action::SetGrid { ref to, .. } => vp.grid = to.clone(),
         }
         self.action_idx += 1;
     }
     fn unapply_action(&mut self) {
+        let vp = self.vps.get_mut(self.vp).unwrap();
+
         self.action_idx -= 1;
         match self.action_log[self.action_idx] {
-            Action::SetCell(pos, value) => self.vp.grid.set(pos, !value),
+            Action::SetCell(pos, value) => vp.grid.set(pos, !value),
             Action::MultiSetCell(ref delta) => delta
                 .iter()
-                .for_each(|&(pos, value)| self.vp.grid.set(pos, !value)),
-            Action::SetGrid { ref from, .. } => self.vp.grid = from.clone(),
+                .for_each(|&(pos, value)| vp.grid.set(pos, !value)),
+            Action::SetGrid { ref from, .. } => vp.grid = from.clone(),
         }
     }
 
@@ -238,19 +282,18 @@ impl InteractiveViewer {
     }
 
     pub fn draw(&self) {
-        self.vp.draw();
+        let vp = self.vp();
+        vp.draw();
 
         const RSEL_COLOR: &str = "#ff0000";
 
         // draw rectangle selection
         if let Some((start, end)) = self.get_selection() {
-            let start = self.vp.map_to_screen_space(start);
-            let end = self.vp.map_to_screen_space(end);
+            let start = vp.map_to_screen_space(start);
+            let end = vp.map_to_screen_space(end);
 
-            self.vp.ctx.set_stroke_style_str(RSEL_COLOR);
-            self.vp
-                .ctx
-                .stroke_rect(start.x, start.y, end.x - start.x, end.y - start.y);
+            vp.ctx.set_stroke_style_str(RSEL_COLOR);
+            vp.ctx.stroke_rect(start.x, start.y, end.x - start.x, end.y - start.y);
         }
     }
 
@@ -271,12 +314,17 @@ impl InteractiveViewer {
             .append_child(&div)
             .unwrap();
 
-        let bp = Viewport::new(grid);
-        set_style!((&bp.canvas){
-            "width": "100%";
-            "aspect-ratio": "1";
-        });
-        div.append_child(&bp.canvas).unwrap();
+        let vps = &mut this.lock().unwrap().vps;
+
+        let bp = vps.insert(grid);
+        {
+            let bp = vps.get(bp).unwrap();
+            set_style!((&bp.canvas){
+                "width": "100%";
+                "aspect-ratio": "1";
+            });
+            div.append_child(&bp.canvas).unwrap();
+        }
 
         let buttons = WrappedHtml::new("div").unwrap();
         set_style!((&buttons){
@@ -285,19 +333,16 @@ impl InteractiveViewer {
         });
         div.append_child(&buttons).unwrap();
 
-        let bp = Arc::new(Mutex::new(bp));
-
         let load = create_button("Load", {
             let this = this.clone();
-            let bp = bp.clone();
             move |_| {
                 let mut this = this.lock().unwrap();
-                let bp = bp.lock().unwrap();
 
-                let prev = this.vp.grid.clone();
+                let prev = this.vp().grid.clone();
+                let next = this.vps.get(bp).unwrap().grid.clone();
                 this.do_action(Action::SetGrid {
                     from: prev,
-                    to: bp.grid.clone(),
+                    to: next,
                 });
                 this.draw();
             }
@@ -305,24 +350,29 @@ impl InteractiveViewer {
         buttons.append_child(&load).unwrap();
 
         let copy = create_button("Copy", {
-            let bp = bp.clone();
+            let this = this.clone();
             move |_| {
-                let bp = bp.clone();
-                let _ = futures::future_to_promise(async move {
-                    let grid = bp.lock().unwrap().grid.clone();
-                    to_clipboard(&grid).await;
+                let this = this.clone();
+                let _ = futures::future_to_promise({
+                    async move {
+                        let mut this = this.lock().unwrap();
 
-                    Ok(JsValue::NULL)
+                        let grid = this.vps.get(bp).unwrap().grid.clone();
+                        to_clipboard(&grid).await;
+
+                        Ok(JsValue::NULL)
+                    }
                 });
             }
         });
         buttons.append_child(&copy).unwrap();
 
         canvas_resize({
-            let bp = bp.clone();
+            let this = this.clone();
             move |callback| {
-                if let Ok(mut bp) = bp.try_lock() {
-                    callback(&mut bp);
+                if let Ok(mut this) = this.try_lock() {
+                    let bp = this.vps.get_mut(bp).unwrap();
+                    callback(bp);
 
                     let bb = bp.grid.aabb();
 
