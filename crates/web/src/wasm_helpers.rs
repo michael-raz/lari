@@ -120,19 +120,18 @@ pub fn proto_set(obj: &Object, key: &str, value: &JsValue) -> Option<()> {
 }
 
 pub fn to_js_func<T, F>(callback: F) -> js_sys::Function
-    where
-        F: 'static + FnMut(T),
-        T: FromWasmAbi + UpcastFrom<web_sys::wasm_bindgen::JsValue>,
+where
+    F: 'static + FnMut(T),
+    T: FromWasmAbi + UpcastFrom<web_sys::wasm_bindgen::JsValue>,
 {
     let callback = ScopedClosure::wrap(Box::new(callback));
     js_sys::Function::from_closure(callback)
 }
 
 pub fn animation_loop<F>(mut callback: F)
-    where
-        F: 'static + FnMut(),
+where
+    F: 'static + FnMut(),
 {
-
     use std::cell::RefCell;
     use std::rc::Rc;
     let mut wrapper = Rc::new(RefCell::new(None));
@@ -147,5 +146,7 @@ pub fn animation_loop<F>(mut callback: F)
     };
 
     wrapper.replace(Some(to_js_func(func)));
-    window().unwrap().request_animation_frame(wrapper.borrow().as_ref().unwrap());
+    window()
+        .unwrap()
+        .request_animation_frame(wrapper.borrow().as_ref().unwrap());
 }

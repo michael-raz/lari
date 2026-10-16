@@ -100,7 +100,10 @@ impl Viewport {
 
         // group cells together and draw them as one
         self.ctx.set_fill_style_str(ALIVE_COLOR);
-        let mut unused_cells = HashSet::<&Vec2>::from_iter(self.grid.alive().filter(|p| p.x >= aabb.0.x && p.x <= aabb.1.x && p.y >= aabb.0.y && p.y <= aabb.1.y));
+        let mut unused_cells =
+            HashSet::<&Vec2>::from_iter(self.grid.alive().filter(|p| {
+                p.x >= aabb.0.x && p.x <= aabb.1.x && p.y >= aabb.0.y && p.y <= aabb.1.y
+            }));
         for pos in unused_cells.clone() {
             // the performance cost of drawing multiple cells as one
             // (can) increase as the scale gets smaller, but the effect
@@ -109,10 +112,7 @@ impl Viewport {
             // arbitrarily too small.
             if self.scale < 0.04 {
                 let a = self.map_to_screen_space(*pos);
-                self.ctx.fill_rect(
-                    a.x, a.y,
-                    size, size,
-                );
+                self.ctx.fill_rect(a.x, a.y, size, size);
                 continue;
             }
 
@@ -337,7 +337,8 @@ impl InteractiveViewer {
             let end = vp.map_to_screen_space(end);
 
             vp.ctx.set_stroke_style_str(RSEL_COLOR);
-            vp.ctx.stroke_rect(start.x, start.y, end.x - start.x, end.y - start.y);
+            vp.ctx
+                .stroke_rect(start.x, start.y, end.x - start.x, end.y - start.y);
         }
     }
 
@@ -399,9 +400,10 @@ impl InteractiveViewer {
                 let this = this.clone();
                 let _ = futures::future_to_promise({
                     async move {
-                        let mut this = this.lock().unwrap();
-
-                        let grid = this.vps.get(bp).unwrap().grid.clone();
+                        let grid = {
+                            let mut this = this.lock().unwrap();
+                            this.vps.get(bp).unwrap().grid.clone()
+                        };
                         to_clipboard(&grid).await;
 
                         Ok(JsValue::NULL)

@@ -330,7 +330,8 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
 
     // TODO: _also_ use "mousewheel" event to support Safari
     //       https://developer.mozilla.org/en-US/docs/Web/API/Element/mousewheel_event
-    canvas.add_listener("wheel", {
+    canvas
+        .add_listener("wheel", {
             let viewer = viewer.clone();
             move |e: WheelEvent| {
                 let mut viewer = viewer.lock().unwrap();
@@ -343,8 +344,7 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                 vp.scale += delta;
 
                 let before = vp.camera_pos;
-                vp.camera_pos =
-                    (mpos + vp.camera_pos) * (vp.scale / prev) - mpos;
+                vp.camera_pos = (mpos + vp.camera_pos) * (vp.scale / prev) - mpos;
                 vp.defer_draw = true;
 
                 if let Some(mut tmp) = viewer.cursor_pin {
@@ -687,10 +687,7 @@ fn create_label() -> WrappedHtml {
     WrappedHtml::new("span").unwrap()
 }
 
-fn create_controls<F>(
-    viewer: Am<InteractiveViewer>,
-    di: Am<DynamicInterval<F>>,
-) -> WrappedHtml
+fn create_controls<F>(viewer: Am<InteractiveViewer>, di: Am<DynamicInterval<F>>) -> WrappedHtml
 where
     F: 'static + Fn(),
 {
