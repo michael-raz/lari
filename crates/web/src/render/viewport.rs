@@ -33,6 +33,7 @@ impl Viewports {
             dim: Default::default(),
             camera_pos: Default::default(),
             scale: 1.0,
+            defer_draw: true,
         };
 
         self.map.insert(out)
@@ -45,6 +46,14 @@ impl Viewports {
     fn get_mut(&mut self, key: ViewportKey) -> Option<&'_ mut Viewport> {
         self.map.get_mut(key)
     }
+
+    fn iter(&self) -> impl std::iter::Iterator<Item = &'_ Viewport> {
+        self.map.iter().map(|(_, vp)| vp)
+    }
+
+    fn iter_mut(&mut self) -> impl std::iter::Iterator<Item = &'_ mut Viewport> {
+        self.map.iter_mut().map(|(_, vp)| vp)
+    }
 }
 
 pub struct Viewport {
@@ -55,6 +64,7 @@ pub struct Viewport {
     pub dim: Vec2<u32>,
     pub camera_pos: Vec2<f64>,
     pub scale: f64,
+    pub defer_draw: bool,
 }
 
 impl Viewport {
@@ -66,7 +76,11 @@ impl Viewport {
         vec2_cast!(pos => f64) * self.scale * CELL_SIZE - self.camera_pos
     }
 
-    pub fn draw(&self) {
+    fn draw(&mut self) {
+        if !self.defer_draw {
+            return;
+        }
+
         const DEAD_COLOR: &str = "#0f0f0f";
         const ALIVE_COLOR: &str = "#f0f0f0";
         let size = CELL_SIZE * self.scale;
@@ -75,11 +89,34 @@ impl Viewport {
         self.ctx
             .fill_rect(0.0, 0.0, self.dim.x as f64, self.dim.y as f64);
 
+        let aabb = (
+            self.map_from_screen_space(vec2![0.0, 0.0]),
+            self.map_from_screen_space(vec2![self.dim.x as f64, self.dim.y as f64]),
+        );
+        let aabb = (
+            vec2![aabb.0.x.floor() as i64, aabb.0.y.floor() as i64],
+            vec2![aabb.1.x.ceil() as i64, aabb.1.y.ceil() as i64],
+        );
+
         // group cells together and draw them as one
         self.ctx.set_fill_style_str(ALIVE_COLOR);
-        let mut unsued_cells = HashSet::<&Vec2>::from_iter(self.grid.alive());
-        for pos in self.grid.alive() {
-            if !unsued_cells.remove(pos) {
+        let mut unused_cells = HashSet::<&Vec2>::from_iter(self.grid.alive().filter(|p| p.x >= aabb.0.x && p.x <= aabb.1.x && p.y >= aabb.0.y && p.y <= aabb.1.y));
+        for pos in unused_cells.clone() {
+            // the performance cost of drawing multiple cells as one
+            // (can) increase as the scale gets smaller, but the effect
+            // also becomes less noticeable.
+            // so stop applying the effect once the scale gets
+            // arbitrarily too small.
+            if self.scale < 0.04 {
+                let a = self.map_to_screen_space(*pos);
+                self.ctx.fill_rect(
+                    a.x, a.y,
+                    size, size,
+                );
+                continue;
+            }
+
+            if !unused_cells.remove(pos) {
                 continue;
             }
 
@@ -92,7 +129,7 @@ impl Viewport {
                 group.extend(
                     [vec2![-1, 0], vec2![1, 0], vec2![0, -1], vec2![0, 1]]
                         .into_iter()
-                        .filter_map(|offset| unsued_cells.take(&(offset + *p))),
+                        .filter_map(|offset| unused_cells.take(&(offset + *p))),
                 );
 
                 i += 1;
@@ -163,6 +200,8 @@ impl Viewport {
             let fill = fill.dyn_into::<Function>().unwrap();
             fill.call(&self.ctx, (&"evenodd".into(),)).unwrap();
         }
+
+        self.defer_draw = false;
     }
 }
 
@@ -218,6 +257,7 @@ impl InteractiveViewer {
                 .for_each(|&(pos, value)| vp.grid.set(pos, value)),
             Action::SetGrid { ref to, .. } => vp.grid = to.clone(),
         }
+        vp.defer_draw = true;
         self.action_idx += 1;
     }
     fn unapply_action(&mut self) {
@@ -231,6 +271,7 @@ impl InteractiveViewer {
                 .for_each(|&(pos, value)| vp.grid.set(pos, !value)),
             Action::SetGrid { ref from, .. } => vp.grid = from.clone(),
         }
+        vp.defer_draw = true;
     }
 
     const MAX_UNDOS: usize = 100;
@@ -281,9 +322,12 @@ impl InteractiveViewer {
         })
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
+        for vp in self.vps.iter_mut() {
+            vp.draw();
+        }
+
         let vp = self.vp();
-        vp.draw();
 
         const RSEL_COLOR: &str = "#ff0000";
 
@@ -388,7 +432,7 @@ impl InteractiveViewer {
                     bp.camera_pos.x = -(c_width - g_width * bp.scale) / 2.0;
                     bp.camera_pos.y = -(c_height - g_height * bp.scale) / 2.0;
 
-                    bp.draw();
+                    bp.defer_draw = true;
                 }
             }
         });

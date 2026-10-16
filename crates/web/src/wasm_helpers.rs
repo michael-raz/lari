@@ -27,11 +27,11 @@ pub(crate) use eprintln;
 
 macro_rules! dbg {
     () => {
-        println!("[{}:{}]", file!(), line!())
+        self::println!("[{}:{}]", file!(), line!())
     };
     ($($x:expr),* $(,)?) => {
         $(
-        println!("[{}:{}] {} = {:?}", file!(), line!(), stringify!($x), $x);
+            self::println!("[{}:{}] {} = {:?}", file!(), line!(), stringify!($x), $x);
         );*
     };
 }
@@ -117,4 +117,35 @@ pub fn proto_set(obj: &Object, key: &str, value: &JsValue) -> Option<()> {
     }
 
     None
+}
+
+pub fn to_js_func<T, F>(callback: F) -> js_sys::Function
+    where
+        F: 'static + FnMut(T),
+        T: FromWasmAbi + UpcastFrom<web_sys::wasm_bindgen::JsValue>,
+{
+    let callback = ScopedClosure::wrap(Box::new(callback));
+    js_sys::Function::from_closure(callback)
+}
+
+pub fn animation_loop<F>(mut callback: F)
+    where
+        F: 'static + FnMut(),
+{
+
+    use std::cell::RefCell;
+    use std::rc::Rc;
+    let mut wrapper = Rc::new(RefCell::new(None));
+
+    let w = window().unwrap();
+    let func = {
+        let wrapper = wrapper.clone();
+        move |_: JsValue| {
+            callback();
+            w.request_animation_frame(wrapper.borrow().as_ref().unwrap());
+        }
+    };
+
+    wrapper.replace(Some(to_js_func(func)));
+    window().unwrap().request_animation_frame(wrapper.borrow().as_ref().unwrap());
 }

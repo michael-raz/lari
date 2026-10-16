@@ -272,7 +272,6 @@ pub fn run() {
     side.append_child(&viewer.blueprint_div).unwrap();
 
     let viewer = Arc::new(Mutex::new(viewer));
-    viewer.lock().unwrap().draw();
 
     init_canvas(viewer.clone());
 
@@ -300,13 +299,21 @@ pub fn run() {
                 if !viewer.paused {
                     let mut vp = viewer.mut_vp();
                     vp.grid.step(1);
-                    viewer.draw();
+                    vp.defer_draw = true;
                 }
             }
         },
         None,
     );
     DynamicInterval::set_rate(di.clone(), from_slider(DEFAULT_SLIDE));
+
+    let func = {
+        let viewer = viewer.clone();
+        move || {
+            viewer.lock().unwrap().draw();
+        }
+    };
+    animation_loop(func);
 
     main.append_child(&create_controls(viewer, di)).unwrap();
 
@@ -338,14 +345,13 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                 let before = vp.camera_pos;
                 vp.camera_pos =
                     (mpos + vp.camera_pos) * (vp.scale / prev) - mpos;
+                vp.defer_draw = true;
 
                 if let Some(mut tmp) = viewer.cursor_pin {
                     tmp -= before - viewer.vp().camera_pos;
 
                     viewer.cursor_pin = Some(tmp);
                 }
-
-                viewer.draw();
             }
         })
         .unwrap();
@@ -375,6 +381,7 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                     if let Some(pinpoint) = viewer.cursor_pin {
                         let vp = viewer.mut_vp();
                         vp.camera_pos = pinpoint - mpos;
+                        vp.defer_draw = true;
                     }
 
                     // rectangle selection
@@ -391,8 +398,6 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                     } else if rsel && let Some(rsel) = viewer.rsel.as_mut() {
                         rsel.1 = pos;
                     }
-
-                    viewer.draw();
 
                     Ok(JsValue::NULL)
                 });
@@ -420,8 +425,6 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                     let alive = vp.grid.get(&pos);
                     let action = Action::SetCell(pos, !alive);
                     viewer.do_action(action);
-
-                    viewer.draw();
                 }
             }
         })
@@ -433,8 +436,6 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
             move |e: Event| {
                 let viewer = viewer.clone();
                 let _ = futures::future_to_promise(async move {
-                    let mut draw_flag = false;
-
                     let key: String = proto_get(e.as_ref(), "key").unwrap().as_string().unwrap();
                     let ctrl: bool = proto_get(e.as_ref(), "ctrlKey")
                         .unwrap()
@@ -488,7 +489,6 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                         };
 
                         to_clipboard(&grid).await;
-                        draw_flag = true;
                     }
 
                     // paste
@@ -504,21 +504,14 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
                         viewer.do_action(action);
 
                         viewer.rsel = None;
-                        draw_flag = true;
                     }
 
                     if undo {
                         viewer.lock().unwrap().undo_action();
-                        draw_flag = true;
                     }
 
                     if redo {
                         viewer.lock().unwrap().redo_action();
-                        draw_flag = true;
-                    }
-
-                    if draw_flag {
-                        viewer.lock().unwrap().draw();
                     }
 
                     Ok(JsValue::NULL)
@@ -539,7 +532,7 @@ fn init_canvas(viewer: Am<InteractiveViewer>) {
             if let Ok(mut viewer) = viewer.try_lock() {
                 let vp = viewer.mut_vp();
                 callback(vp);
-                viewer.draw();
+                vp.defer_draw = true;
             }
         }
     });
@@ -603,7 +596,6 @@ fn create_load_button(viewer: Am<InteractiveViewer>) -> WrappedHtml {
                 to: grid,
             };
             viewer.do_action(action);
-            viewer.draw();
 
             Ok(JsValue::NULL)
         });
