@@ -2,13 +2,13 @@ use super::*;
 
 pub struct Qiter<T> {
     src: Qtree<T>,
-    stack: Vec<Dir>,
+    stack: Path,
 }
 impl<T> Qiter<T> {
     fn get(&self) -> &'_ QtreeNode<T> {
         let mut out = &self.src.root;
 
-        for &d in self.stack.iter() {
+        for d in self.stack.iter() {
             let children = out.children();
             out = children.get(d).as_ref().unwrap();
         }
@@ -19,7 +19,7 @@ impl<T> Qiter<T> {
     fn get_mut(&mut self) -> &'_ mut QtreeNode<T> {
         let mut out = &mut self.src.root;
 
-        for &d in self.stack.iter() {
+        for d in self.stack.iter() {
             let children = out.children_mut();
             out = children.get_mut(d).as_mut().unwrap();
         }
@@ -78,7 +78,10 @@ impl<T> Qiter<T> {
     }
 
     fn new(src: Qtree<T>) -> Self {
-        let mut out = Self { src, stack: vec![] };
+        let mut out = Self {
+            src,
+            stack: qpath![],
+        };
 
         // try to initialize the stack
         out.set_stack();

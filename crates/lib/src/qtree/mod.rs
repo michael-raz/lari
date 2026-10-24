@@ -6,6 +6,9 @@ use std::ops::DerefMut;
 use crate::util::*;
 pub use crate::vec2::*;
 
+mod path;
+pub use path::*;
+
 mod iter;
 pub use iter::*;
 
@@ -35,25 +38,42 @@ impl<T> Qtree<T> {
     ///
     /// Replaces the value at `pos`, if it already had one.
     pub fn insert(&mut self, pos: Vec2, value: T) {
+        let upper = Self::bounding_height(pos);
+
+        // grow height to be less than or equal to upper
+        for _ in self.height..upper {
+            self.grow();
+        }
         let coords = self.as_dirs(pos);
-        self.insert_by_dirs(coords, value);
+
+        self.insert_by_dirs(&coords, value);
     }
 
     /// Gets the value at `pos`.
-    pub fn get(&mut self, pos: Vec2) -> Option<&mut T> {
+    pub fn get(&self, pos: Vec2) -> Option<&T> {
+        if Self::bounding_height(pos) > self.height {
+            return None;
+        }
+
         let coords = self.as_dirs(pos);
-        self.get_owner(coords, false)
-            .and_then(|opt| opt.as_mut())
-            .map(|b| match b.deref_mut() {
-                QtreeNode::Leaf(value) => value,
-                _ => unreachable!(),
-            })
+        self.root.get_owner(&coords).map(|b| match b {
+            QtreeNode::Leaf(value) => value,
+            _ => unreachable!(),
+        })
     }
 
     /// Removes the value at `pos`.
     pub fn remove(&mut self, pos: Vec2) -> Option<T> {
+        let upper = Self::bounding_height(pos);
+
+        // grow height to be less than or equal to upper
+        for _ in self.height..upper {
+            self.grow();
+        }
         let coords = self.as_dirs(pos);
-        self.get_owner(coords, false)
+
+        self.root
+            .get_owner_mut(&coords, false)
             .and_then(|opt| opt.take())
             .map(|x| match *x {
                 QtreeNode::Leaf(value) => value,
@@ -62,7 +82,7 @@ impl<T> Qtree<T> {
     }
 
     /// Get the height of the `Qtree`.
-    pub fn get_height(&self) -> u8 {
+    pub fn height(&self) -> u8 {
         self.height
     }
 
@@ -73,11 +93,10 @@ impl<T> Qtree<T> {
     /// # Panics
     ///
     /// Panics if the count of `dirs` doesn't equal this `Qtree`'s `height`.
-    pub fn insert_by_dirs(&mut self, dirs: impl IntoIterator<Item = Dir>, value: T) {
-        let coords = dirs.into_iter().collect::<Vec<_>>();
-        assert_eq!(coords.len(), self.height as usize);
+    pub fn insert_by_dirs(&mut self, path: &Path, value: T) {
+        assert_eq!(path.len(), self.height);
 
-        let leaf = self.get_owner(coords, true).unwrap();
+        let leaf = self.root.get_owner_mut(path, true).unwrap();
         let value = QtreeNode::Leaf(value);
 
         // only allocate a new box if there isn't one already
@@ -139,20 +158,14 @@ impl<T> Qtree<T> {
     ///
     /// Note that this method will increase the height (if needed) such that
     /// `self` is large enough to contain `pos`.
-    fn as_dirs(&mut self, mut pos: Vec2) -> Vec<Dir> {
-        let upper = Self::bounding_height(pos);
-
-        // grow height to be less than or equal to upper
-        for _ in self.height..upper {
-            self.grow();
-        }
-
-        let mut out = vec![];
-        for i in 0..self.height {
+    pub fn as_dirs(&self, mut pos: Vec2) -> Path {
+        let mut out = Path::new();
+        let range = 0..self.height as i8;
+        for i in range.clone() {
             let dir = vec2_to_dir(&pos);
 
-            let r = shift(1i64, self.height as i8 - i as i8 - 2);
-            pos += dir_to_vec2(&dir) * -r;
+            let r = shift(1i64, range.end - i - 2);
+            pos += dir_to_vec2(dir) * -r;
 
             out.push(dir);
         }
@@ -160,43 +173,14 @@ impl<T> Qtree<T> {
         out
     }
 
-    fn to_pos(dirs: &[Dir]) -> Vec2 {
-        let mut iter = dirs.iter().rev();
+    fn to_pos(path: &Path) -> Vec2 {
+        let mut iter = (0..path.len()).rev().map(|i| path.get(i));
         let mut out = (dir_to_vec2(iter.next().unwrap()) - 1) / 2;
         for (i, dir) in iter.enumerate() {
             out += dir_to_vec2(dir) * (1i64 << i);
         }
 
         out
-    }
-
-    /// Helper method to return the 'owner' of the value at `pos`.
-    ///
-    /// The `Box<QtreeNode>` will _always_ contain the [Leaf][QtreeNode::Leaf] variant.
-    fn get_owner<I>(&mut self, coords: I, create: bool) -> Option<&'_ mut Option<Box<QtreeNode<T>>>>
-    where
-        I: IntoIterator<Item = Dir>,
-        <I as IntoIterator>::IntoIter: DoubleEndedIterator,
-    {
-        let mut coords = coords.into_iter();
-
-        let last = coords.next_back().unwrap();
-
-        let mut p: &mut QtreeNode<T> = &mut self.root;
-        for dir in coords {
-            let child = p.children_mut().get_mut(dir);
-            if let Some(child) = child {
-                p = child;
-            } else if create {
-                p = child.insert(Box::new(QtreeNode::Parent(Default::default())));
-            } else {
-                return None;
-            }
-        }
-
-        let out = p.children_mut().get_mut(last);
-
-        Some(out)
     }
 }
 impl Qtree<()> {
@@ -232,35 +216,40 @@ impl Qtree<()> {
     pub fn load(src: &mut impl Read) -> io::Result<Self> {
         let height = read_le!(src, u64) as usize;
 
-        // let mut iter = src.bytes().map(|res| res.map(|b| b > 0));
         let src = io::BufReader::new(src);
         let mut iter = read_bits(src);
 
-        let mut stack: Vec<u8> = vec![];
+        let mut stack: Path = qpath![];
         let mut out = Qtree::<()>::with_height(height as u8);
 
-        let mut counter = 0;
+        let mut counter = Dir::default();
         'main: while let Some(Ok(value)) = iter.next() {
+            let mut flag = true;
             if value {
                 stack.push(counter);
-                counter = 0;
-            } else {
-                counter += 1;
+                counter = Dir::default();
+                flag = false
             }
 
-            if stack.len() == height {
-                let dirs = stack.iter().map(|&c| &Dir::ALL[c as usize]);
-                out.insert_by_dirs(dirs.copied(), ());
+            if stack.len() == height as u8 {
+                out.insert_by_dirs(&stack, ());
 
-                counter = stack.pop().unwrap() + 1;
+                counter = stack.pop().unwrap();
+                flag = true;
             }
 
-            while counter as usize == Dir::ALL.len() {
+            if !flag {
+                continue;
+            }
+
+            let mut next = counter.inc();
+            while next.is_none() {
                 if stack.is_empty() {
                     break 'main;
                 }
-                counter = stack.pop().unwrap() + 1;
+                next = stack.pop().unwrap().inc();
             }
+            counter = next.unwrap()
         }
 
         Ok(out)
@@ -294,6 +283,12 @@ impl<T> QtreeNode<T> {
             _ => panic!(),
         }
     }
+    fn as_value(&self) -> &T {
+        match self {
+            QtreeNode::Leaf(value) => value,
+            _ => panic!(),
+        }
+    }
 
     fn children(&self) -> &Children<T> {
         match self {
@@ -307,18 +302,64 @@ impl<T> QtreeNode<T> {
             _ => panic!(),
         }
     }
-}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Dir {
-    TopRight,
-    TopLeft,
-    BotLeft,
-    BotRight,
-}
-use Dir::*;
-impl Dir {
-    const ALL: [Dir; 4] = [TopRight, TopLeft, BotLeft, BotRight];
+    /// Helper method to return the 'owner' of the value at `pos`.
+    ///
+    /// The `QtreeNode` will _always_ be the [Leaf][QtreeNode::Leaf] variant.
+    pub fn get_owner(&self, path: &Path) -> Option<&'_ QtreeNode<T>> {
+        if path.len() > 0 {
+            let mut p: &QtreeNode<T> = self;
+            for dir in path.iter().take((path.len() - 1) as usize) {
+                let child = p.children().get(dir);
+                if let Some(child) = child {
+                    p = child;
+                } else {
+                    return None;
+                }
+            }
+
+            p.children().get(path.get(path.len() - 1))
+        } else {
+            Some(self)
+        }
+    }
+
+    fn get_owner_mut(
+        &mut self,
+        path: &Path,
+        create: bool,
+    ) -> Option<&'_ mut Option<Box<QtreeNode<T>>>> {
+        let mut path = (0..path.len()).map(|i| path.get(i));
+        let last = path.next_back().unwrap();
+
+        let mut p: &mut QtreeNode<T> = self;
+        for dir in path {
+            let child = p.children_mut().get_mut(dir);
+            if let Some(child) = child {
+                p = child;
+            } else if create {
+                p = child.insert(Box::new(QtreeNode::Parent(Default::default())));
+            } else {
+                return None;
+            }
+        }
+
+        let out = p.children_mut().get_mut(last);
+
+        Some(out)
+    }
+
+    pub fn insert(&mut self, path: &Path, value: T) {
+        let leaf = self.get_owner_mut(path, true).unwrap();
+        let value = QtreeNode::Leaf(value);
+
+        // only allocate a new box if there isn't one already
+        if let Some(leaf) = leaf {
+            *leaf.deref_mut() = value;
+        } else {
+            *leaf = Some(Box::new(value));
+        }
+    }
 }
 
 pub(crate) struct Children<T> {
@@ -357,7 +398,7 @@ impl<T> Default for Children<T> {
     }
 }
 
-fn dir_to_vec2(dir: &Dir) -> Vec2 {
+fn dir_to_vec2(dir: Dir) -> Vec2 {
     match dir {
         TopRight => vec2![1, 1],
         TopLeft => vec2![-1, 1],
@@ -454,36 +495,46 @@ fn qchain() {
         };
     }
 
-    assert_chain!((0, 0), vec![Dir::TopRight]);
-    assert_chain!((-1, 0), vec![Dir::TopLeft]);
-    assert_chain!((-1, -1), vec![Dir::BotLeft]);
-    assert_chain!((0, -1), vec![Dir::BotRight]);
+    assert_chain!((0, 0), qpath![TopRight]);
+    assert_chain!((-1, 0), qpath![TopLeft]);
+    assert_chain!((-1, -1), qpath![BotLeft]);
+    assert_chain!((0, -1), qpath![BotRight]);
 
-    assert_chain!(h = 2, (0, 0), vec![Dir::TopRight, Dir::BotLeft]);
-    assert_chain!(h = 2, (-1, 0), vec![Dir::TopLeft, Dir::BotRight]);
-    assert_chain!(h = 2, (-1, -1), vec![Dir::BotLeft, Dir::TopRight]);
-    assert_chain!(h = 2, (0, -1), vec![Dir::BotRight, Dir::TopLeft]);
+    assert_chain!(h = 2, (0, 0), qpath![TopRight, BotLeft]);
+    assert_chain!(h = 2, (-1, 0), qpath![TopLeft, BotRight]);
+    assert_chain!(h = 2, (-1, -1), qpath![BotLeft, TopRight]);
+    assert_chain!(h = 2, (0, -1), qpath![BotRight, TopLeft]);
 
-    assert_chain!(
-        h = 3,
-        (0, 0),
-        vec![Dir::TopRight, Dir::BotLeft, Dir::BotLeft]
-    );
-    assert_chain!(
-        h = 3,
-        (-1, 0),
-        vec![Dir::TopLeft, Dir::BotRight, Dir::BotRight]
-    );
-    assert_chain!(
-        h = 3,
-        (-1, -1),
-        vec![Dir::BotLeft, Dir::TopRight, Dir::TopRight]
-    );
-    assert_chain!(
-        h = 3,
-        (0, -1),
-        vec![Dir::BotRight, Dir::TopLeft, Dir::TopLeft]
-    );
+    assert_chain!(h = 3, (0, 0), qpath![TopRight, BotLeft, BotLeft]);
+    assert_chain!(h = 3, (-1, 0), qpath![TopLeft, BotRight, BotRight]);
+    assert_chain!(h = 3, (-1, -1), qpath![BotLeft, TopRight, TopRight]);
+    assert_chain!(h = 3, (0, -1), qpath![BotRight, TopLeft, TopLeft]);
+}
+
+#[cfg(test)]
+fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
+    let mut counter = Path::from_iter(std::iter::repeat(TopRight).take(q.height() as usize));
+    'main: loop {
+        eprintln!(
+            "{:?} -> {:?} -> {:?}",
+            &counter,
+            Qtree::<()>::to_pos(&counter),
+            q.root.get_owner(&counter).map(|node| node.as_value())
+        );
+
+        // increment
+        let mut next = counter.pop().unwrap().inc();
+        while next.is_none() {
+            if counter.is_empty() {
+                break 'main;
+            }
+            next = counter.pop().unwrap().inc();
+        }
+        counter.push(next.unwrap());
+        while counter.len() < q.height() {
+            counter.push(TopRight);
+        }
+    }
 }
 
 #[test]
@@ -495,11 +546,16 @@ fn qtree_set_get_basic() {
 
     let mut x = Qtree::new();
     for &p in &points {
+        dbg!(p);
         x.insert(p, ());
+
+        showq(&x);
+        assert!(x.contains(&p));
     }
 
-    for &p in &points {
-        assert!(x.get(p).is_some());
+    for p in &points {
+        dbg!(p);
+        assert!(x.contains(&p));
     }
 }
 
