@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 use std::io::{self, Read, Write};
 
+mod moore;
+use moore::*;
+
 pub mod rle;
 
 use crate::qtree::*;
@@ -68,7 +71,7 @@ pub use crate::vec2::*;
 /// ```
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Grid {
-    cells: HashSet<Vec2>,
+    cells: MooreGrid,
 }
 
 impl Grid {
@@ -102,25 +105,13 @@ impl Grid {
     /// assert_eq!(a, b);
     /// ```
     pub fn step(&mut self, count: usize) {
-        let offsets: [(i64, i64); 8] = [
-            (-1, -1),
-            (0, -1),
-            (1, -1),
-            (-1, 0),
-            (1, 0),
-            (-1, 1),
-            (0, 1),
-            (1, 1),
-        ];
-
         let mut visited = HashSet::new();
         let mut queue: Vec<Vec2> = vec![];
-        let mut scratch = HashSet::new();
+        let mut scratch = MooreGrid::new();
 
         for _ in 0..count {
             visited.reserve(self.cells.len() * 8);
             queue.reserve(self.cells.len() * 8);
-            scratch.reserve(self.cells.len() * 8);
 
             visited.clear();
             queue.clear();
@@ -130,23 +121,16 @@ impl Grid {
             visited.extend(queue.iter());
 
             while let Some(cur) = queue.pop() {
-                let alive = self.cells.contains(&cur);
-                let neighbors = offsets.iter().map(|o| cur.add(Vec2::from(o)));
+                let (alive, acount) = self.cells.get_with_count(&cur);
 
-                let mut acount = 0;
-                for n in neighbors {
-                    if self.cells.contains(&n) {
-                        acount += 1;
+                let changed = scratch.set(cur, acount == 3 || (alive && acount == 2));
+                if changed {
+                    for n in MooreGrid::neighbors(cur) {
+                        if !visited.contains(&n) {
+                            queue.push(n);
+                            visited.insert(n);
+                        }
                     }
-
-                    if alive && !visited.contains(&n) {
-                        queue.push(n);
-                        visited.insert(n);
-                    }
-                }
-
-                if acount == 3 || (alive && acount == 2) {
-                    scratch.insert(cur);
                 }
             }
 
@@ -177,12 +161,7 @@ impl Grid {
     /// assert_eq!(grid.get(&p), false);
     /// ```
     pub fn set(&mut self, pos: impl Into<Vec2>, value: bool) {
-        let pos = pos.into();
-        if value {
-            self.cells.insert(pos);
-        } else {
-            self.cells.remove(&pos);
-        }
+        self.cells.set(pos, value);
     }
 
     /// Returns true if the cell at `pos` is alive.
@@ -190,7 +169,7 @@ impl Grid {
     /// # Example
     /// See [set][Grid::set].
     pub fn get(&self, pos: &Vec2) -> bool {
-        self.cells.contains(pos)
+        self.cells.get(pos)
     }
 
     /// Get the positions of all of the cells that are alive.
@@ -211,7 +190,7 @@ impl Grid {
     ///
     /// assert_eq!(grid.alive().count(), 6);
     /// ```
-    pub fn alive(&self) -> impl Iterator<Item = &'_ Vec2> {
+    pub fn alive(&self) -> impl Iterator<Item = &Vec2> {
         self.cells.iter()
     }
 
@@ -345,16 +324,19 @@ impl Grid {
 
 impl IntoIterator for Grid {
     type Item = Vec2;
-    type IntoIter = <HashSet<Self::Item> as IntoIterator>::IntoIter;
+    type IntoIter = <MooreGrid as IntoIterator>::IntoIter;
     fn into_iter(self) -> Self::IntoIter {
         self.cells.into_iter()
     }
 }
 impl FromIterator<Vec2> for Grid {
     fn from_iter<T: IntoIterator<Item = Vec2>>(iter: T) -> Self {
-        Self {
-            cells: HashSet::from_iter(iter),
+        let mut out = Self::default();
+        for p in iter {
+            out.set(p, true);
         }
+
+        out
     }
 }
 
