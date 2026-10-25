@@ -68,7 +68,7 @@ impl MooreGrid {
         for n in Self::neighbors(pos) {
             let mut entry = match self.inner.entry(n) {
                 Entry::Occupied(o) => o,
-                entry @ _ => entry.insert_entry((false, 0)),
+                entry => entry.insert_entry((false, 0)),
             };
 
             let value = entry.get_mut();
@@ -136,7 +136,7 @@ where
 {
     type Item = Vec2;
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(next) = self.0.next() {
+        for next in self.0.by_ref() {
             if !next.1.0 {
                 continue;
             }

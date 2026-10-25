@@ -96,7 +96,7 @@ impl<T> Qtree<T> {
             type Item = (Vec2, &'a U);
 
             fn next(&mut self) -> Option<Self::Item> {
-                if self.counter.len() == 0 {
+                if self.counter.is_empty() {
                     self.counter.push(TopRight);
                 }
 
@@ -112,7 +112,7 @@ impl<T> Qtree<T> {
                         }
                     } else {
                         self.inc();
-                        if self.counter.len() == 0 {
+                        if self.counter.is_empty() {
                             return None;
                         }
                     }
@@ -385,15 +385,11 @@ impl<T> QtreeNode<T> {
 
     /// Helper method to return the 'owner' of the value at `pos`.
     pub fn get_owner(&self, path: &Path) -> Option<&'_ QtreeNode<T>> {
-        if path.len() > 0 {
+        if !path.is_empty() {
             let mut p: &QtreeNode<T> = self;
             for dir in path.iter().take((path.len() - 1) as usize) {
                 let child = p.children().get(dir);
-                if let Some(child) = child {
-                    p = child;
-                } else {
-                    return None;
-                }
+                p = child?;
             }
 
             p.children().get(path.get(path.len() - 1))
@@ -572,11 +568,11 @@ fn qchain() {
 
 #[cfg(test)]
 fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
-    let mut counter = Path::from_iter(std::iter::repeat(Dir::default()).take(q.height() as usize));
+    let mut counter = Path::from_iter(std::iter::repeat_n(Dir::default(), q.height() as usize));
     'main: loop {
         eprintln!(
             "{:?} -> {:?} -> {:?}",
-            &counter,
+            counter,
             Qtree::<()>::to_pos(&counter),
             q.root.get_owner(&counter).map(|node| node.as_value())
         );
@@ -612,7 +608,7 @@ fn qtree_set_get_basic() {
         assert!(x.contains(&p));
     }
 
-    for p in &points {
+    for &p in &points {
         dbg!(p);
         assert!(x.contains(&p));
     }
@@ -637,7 +633,7 @@ fn qtree_set_get_rand() {
         qtree.insert(pos, value);
 
         for (k, v) in &verify {
-            assert_eq!(qtree.get(*k).as_deref(), Some(v));
+            assert_eq!(qtree.get(*k), Some(v));
         }
     }
 }

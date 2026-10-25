@@ -1,7 +1,8 @@
 use crate::vec2::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
+    #[default]
     TopRight,
     TopLeft,
     BotLeft,
@@ -20,7 +21,7 @@ impl Dir {
         }
     }
 
-    const fn to_num(&self) -> u8 {
+    const fn to_num(self) -> u8 {
         match self {
             TopRight => 0b00,
             TopLeft => 0b01,
@@ -37,11 +38,6 @@ impl Dir {
             0b11 => BotRight,
             _ => panic!(),
         }
-    }
-}
-impl Default for Dir {
-    fn default() -> Self {
-        TopRight
     }
 }
 impl AsRef<Dir> for Dir {
