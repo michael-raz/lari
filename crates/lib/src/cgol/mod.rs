@@ -401,6 +401,40 @@ fn save_load() {
     });
 }
 
+#[cfg(test)]
+macro_rules! assert_steps {
+    ($before:expr => $after:expr; after $steps:literal steps) => {
+        let mut before = Grid::from_table($before);
+        let after = Grid::from_table($after);
+
+        before.step($steps);
+
+        assert_eq!(before, after);
+    };
+}
+
+#[test]
+fn simple() {
+    assert_steps!(&[[1]] => &[[1]]; after 0 steps);
+    assert_steps!(&[[1]] => &[[0]]; after 1 steps);
+
+    assert_steps!(&[
+        [1, 1],
+        [1, 1],
+    ] => &[
+        [1, 1],
+        [1, 1],
+    ]; after 1 steps);
+
+    assert_steps!(&[
+        [1, 1],
+        [1, 1],
+    ] => &[
+        [1, 1],
+        [1, 1],
+    ]; after 10 steps);
+}
+
 #[test]
 fn blinker() {
     let init = Grid::from_table(&[[0, 0, 0], [1, 1, 1], [0, 0, 0]]);
