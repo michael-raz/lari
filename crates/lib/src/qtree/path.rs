@@ -108,16 +108,10 @@ impl Path {
 
         let count = self.count * 2;
 
-        // const `Option::unwrap_or` isn't stable yet, so we manually do it
-        let mask = if let Some(mask) = 1u128.overflowing_shl(count as u32).0.checked_sub(1) {
-            mask
-        } else {
-            0
-        };
-
-        // SAFETY: self.count will _never_ be greater than or equal to 64
-        self.dirs =
-            (self.dirs & mask) | unsafe { (dir.to_num() as u128).unchecked_shl(count as u32) };
+        // SAFETY: a direction cannot be pushed if it will result in a self.count > 64
+        //         i.e. if self.count >= 64 when the unsafe block is run, it's a logic error
+        self.dirs = (self.dirs & unsafe { 1u128.unchecked_shl(count as u32) - 1 })
+            | unsafe { (dir.to_num() as u128).unchecked_shl(count as u32) };
         self.count += 1;
     }
 
