@@ -75,7 +75,9 @@ pub fn to_grid(src: &mut impl Read) -> io::Result<Grid> {
         match value {
             "o" | "b" => {
                 for _ in 0..count {
-                    out.set(pos, value == "o");
+                    if value == "o" {
+                        out.set(pos, true);
+                    }
                     pos.x += 1
                 }
             }
@@ -149,6 +151,7 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
         cur = pos;
         out.write_all(entry.as_bytes())?;
         count += entry.len();
+        line_count += entry.len();
     }
     let trailer = "!";
     out.write_all(trailer.as_bytes())?;
