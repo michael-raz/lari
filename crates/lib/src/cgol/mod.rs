@@ -107,18 +107,15 @@ impl Grid {
     pub fn step(&mut self, count: usize) {
         let mut visited = HashSet::new();
         let mut queue: Vec<Vec2> = vec![];
-        let mut scratch = MooreGrid::new();
 
         for _ in 0..count {
-            visited.reserve(self.cells.len() * 8);
-            queue.reserve(self.cells.len() * 8);
-
             visited.clear();
             queue.clear();
-            scratch.clear();
 
             queue.extend(self.cells.iter());
             visited.extend(queue.iter());
+
+            let mut scratch = self.cells.clone();
 
             while let Some(cur) = queue.pop() {
                 let (alive, acount) = self.cells.get_with_count(&cur);
@@ -134,7 +131,7 @@ impl Grid {
                 }
             }
 
-            std::mem::swap(&mut self.cells, &mut scratch);
+            self.cells = scratch;
         }
     }
 
