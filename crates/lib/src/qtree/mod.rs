@@ -62,6 +62,70 @@ impl<T> Qtree<T> {
         })
     }
 
+    /// Check if an element with the key `pos` exists.
+    pub fn contains(&self, pos: &Vec2) -> bool {
+        self.get(*pos).is_some()
+    }
+
+    /// Removes all elements.
+    pub fn clear(&mut self) {
+        // TODO: have a different kind of `clear` where
+        //       we hold onto the box allocations
+        *self = Self::default();
+    }
+
+    /// Creates an iterator with references to the values.
+    pub fn iter(&self) -> impl Iterator<Item = (Vec2, &T)> {
+        struct RefIter<'a, U> {
+            q: &'a Qtree<U>,
+            counter: Path,
+        }
+
+        impl<'a, U> RefIter<'a, U> {
+            fn inc(&mut self) {
+                while let Some(last) = self.counter.pop() {
+                    if let Some(last) = last.inc() {
+                        self.counter.push(last);
+                        return;
+                    }
+                }
+            }
+        }
+
+        impl<'a, U> Iterator for RefIter<'a, U> {
+            type Item = (Vec2, &'a U);
+
+            fn next(&mut self) -> Option<Self::Item> {
+                if self.counter.len() == 0 {
+                    self.counter.push(TopRight);
+                }
+
+                loop {
+                    let out = self.q.root.get_owner(&self.counter);
+                    if let Some(out) = out {
+                        if out.is_leaf() {
+                            let out = (Qtree::<U>::to_pos(&self.counter), out.as_value());
+                            self.inc();
+                            return Some(out);
+                        } else {
+                            self.counter.push(TopRight);
+                        }
+                    } else {
+                        self.inc();
+                        if self.counter.len() == 0 {
+                            return None;
+                        }
+                    }
+                }
+            }
+        }
+
+        RefIter {
+            q: self,
+            counter: Path::new(),
+        }
+    }
+
     /// Removes the value at `pos`.
     pub fn remove(&mut self, pos: Vec2) -> Option<T> {
         let upper = Self::bounding_height(pos);
@@ -261,6 +325,22 @@ impl<T> Default for Qtree<T> {
         Self {
             height: 1,
             root: QtreeNode::Parent(Default::default()),
+        }
+    }
+}
+
+impl<'a> Extend<&'a Vec2> for Qtree<()> {
+    fn extend<I: IntoIterator<Item = &'a Vec2>>(&mut self, iter: I) {
+        for &pos in iter {
+            self.insert(pos, ());
+        }
+    }
+}
+
+impl Extend<Vec2> for Qtree<()> {
+    fn extend<I: IntoIterator<Item = Vec2>>(&mut self, iter: I) {
+        for pos in iter {
+            self.insert(pos, ());
         }
     }
 }
@@ -560,4 +640,22 @@ fn qtree_set_get_rand() {
             assert_eq!(qtree.get(*k).as_deref(), Some(v));
         }
     }
+}
+
+#[test]
+fn qtree_iter() {
+    use rand::random;
+    use std::collections::HashMap;
+
+    let mut q = Qtree::new();
+    for i in 0..256 {
+        let x = random::<i64>();
+        let y = random::<i64>();
+        q.insert(vec2![x, y], i);
+    }
+
+    let a = HashMap::<Vec2, i64>::from_iter(q.iter().map(|(pos, &value)| (pos, value)));
+    let b = HashMap::<Vec2, i64>::from_iter(q);
+
+    assert_eq!(a, b);
 }
