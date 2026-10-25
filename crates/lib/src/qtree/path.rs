@@ -1,3 +1,5 @@
+use crate::vec2::*;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
     TopRight,
@@ -45,6 +47,29 @@ impl Default for Dir {
 impl AsRef<Dir> for Dir {
     fn as_ref(&self) -> &Dir {
         self
+    }
+}
+
+impl From<Vec2> for Dir {
+    fn from(pos: Vec2) -> Self {
+        let left = pos.x < 0;
+        let bot = pos.y < 0;
+        match (bot, left) {
+            (true, true) => BotLeft,
+            (true, false) => BotRight,
+            (false, true) => TopLeft,
+            (false, false) => TopRight,
+        }
+    }
+}
+impl From<Dir> for Vec2 {
+    fn from(dir: Dir) -> Self {
+        match dir {
+            TopRight => vec2![1, 1],
+            TopLeft => vec2![-1, 1],
+            BotLeft => vec2![-1, -1],
+            BotRight => vec2![1, -1],
+        }
     }
 }
 

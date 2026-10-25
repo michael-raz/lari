@@ -162,10 +162,10 @@ impl<T> Qtree<T> {
         let mut out = Path::new();
         let range = 0..self.height as i8;
         for i in range.clone() {
-            let dir = vec2_to_dir(&pos);
+            let dir = Dir::from(pos);
 
             let r = shift(1i64, range.end - i - 2);
-            pos += dir_to_vec2(dir) * -r;
+            pos += Vec2::from(dir) * -r;
 
             out.push(dir);
         }
@@ -175,9 +175,9 @@ impl<T> Qtree<T> {
 
     fn to_pos(path: &Path) -> Vec2 {
         let mut iter = (0..path.len()).rev().map(|i| path.get(i));
-        let mut out = (dir_to_vec2(iter.next().unwrap()) - 1) / 2;
+        let mut out = (Vec2::from(iter.next().unwrap()) - 1) / 2;
         for (i, dir) in iter.enumerate() {
-            out += dir_to_vec2(dir) * (1i64 << i);
+            out += Vec2::from(dir) * (1i64 << i);
         }
 
         out
@@ -304,8 +304,6 @@ impl<T> QtreeNode<T> {
     }
 
     /// Helper method to return the 'owner' of the value at `pos`.
-    ///
-    /// The `QtreeNode` will _always_ be the [Leaf][QtreeNode::Leaf] variant.
     pub fn get_owner(&self, path: &Path) -> Option<&'_ QtreeNode<T>> {
         if path.len() > 0 {
             let mut p: &QtreeNode<T> = self;
@@ -395,25 +393,6 @@ impl<T> Default for Children<T> {
             bot_left: None,
             bot_right: None,
         }
-    }
-}
-
-fn dir_to_vec2(dir: Dir) -> Vec2 {
-    match dir {
-        TopRight => vec2![1, 1],
-        TopLeft => vec2![-1, 1],
-        BotLeft => vec2![-1, -1],
-        BotRight => vec2![1, -1],
-    }
-}
-fn vec2_to_dir(pos: &Vec2) -> Dir {
-    let left = pos.x < 0;
-    let bot = pos.y < 0;
-    match (bot, left) {
-        (true, true) => BotLeft,
-        (true, false) => BotRight,
-        (false, true) => TopLeft,
-        (false, false) => TopRight,
     }
 }
 
@@ -513,7 +492,7 @@ fn qchain() {
 
 #[cfg(test)]
 fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
-    let mut counter = Path::from_iter(std::iter::repeat(TopRight).take(q.height() as usize));
+    let mut counter = Path::from_iter(std::iter::repeat(Dir::default()).take(q.height() as usize));
     'main: loop {
         eprintln!(
             "{:?} -> {:?} -> {:?}",
@@ -532,7 +511,7 @@ fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
         }
         counter.push(next.unwrap());
         while counter.len() < q.height() {
-            counter.push(TopRight);
+            counter.push(Dir::default());
         }
     }
 }
