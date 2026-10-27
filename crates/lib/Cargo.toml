@@ -15,4 +15,5 @@ regex = "1.13.1"
 rand = { version = "0.10.3", optional = true }
 
 [dev-dependencies]
+either = "1.19.0"
 rand = "0.10.3"
