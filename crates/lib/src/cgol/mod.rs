@@ -105,27 +105,25 @@ impl Grid {
     /// assert_eq!(a, b);
     /// ```
     pub fn step(&mut self, count: usize) {
-        let mut visited = HashSet::new();
+        let mut dirty = HashSet::<Vec2>::from_iter(self.cells.iter_all().map(|all| all.0));
         let mut queue: Vec<Vec2> = vec![];
 
         for _ in 0..count {
-            visited.clear();
             queue.clear();
+            queue.extend(dirty.iter());
 
-            queue.extend(self.cells.iter());
-            visited.extend(queue.iter());
+            dirty.clear();
 
             let mut scratch = self.cells.clone();
-
             while let Some(cur) = queue.pop() {
                 let (alive, acount) = self.cells.get_with_count(&cur);
 
                 let changed = scratch.set(cur, acount == 3 || (alive && acount == 2));
                 if changed {
+                    dirty.insert(cur);
                     for n in MooreGrid::neighbors(cur) {
-                        if !visited.contains(&n) {
+                        if dirty.insert(n) {
                             queue.push(n);
-                            visited.insert(n);
                         }
                     }
                 }

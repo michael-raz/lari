@@ -120,6 +120,13 @@ impl MooreGrid {
         self.iter().count()
     }
 
+    /// Returns an iterator over all of tracked cells.
+    pub fn iter_all(&self) -> impl Iterator<Item = (Vec2, bool, u8)> {
+        self.inner
+            .iter()
+            .map(|(&pos, &(alive, count))| (pos, alive, count))
+    }
+
     /// Returns an iterator over all of the alive cells.
     pub fn iter(&self) -> impl Iterator<Item = &Vec2> {
         self.inner.iter().filter_map(|(p, (a, _))| a.then_some(p))
