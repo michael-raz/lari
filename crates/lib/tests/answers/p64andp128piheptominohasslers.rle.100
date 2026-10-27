@@ -1,0 +1,10 @@
+x = 70, y = 32, rule = B3/S23
+4bo3bo35bo3bo$3bobobobo14b2o17bobobobo14b2o$4b2ob2o15b3o17b2ob2o15b3o
+$18b2o2bo2bobo30b2o2bo2bobo$18b2o2b2o2b2o30b2o2b2o2b2o$5o3b5o9b2o16b5o
+3b5o9b2o$ob4ob4obo27bob4ob4obo$2obobobobob2o14bo12b2obobobobob2o14bo
+$bobobobobobo13b3o13bobobobobobo13b3o$2b3o3b3o13bo17b3o3b3o13bo$3bo5bo
+3b3o8b2o17bo5bo3b3o8b2o$12bo3bo35bo3bo$12bo3bo35bo3bo$14bo8b2o29bo8b2o
+$12bob2o9bo26bob2o9bo$12b3o8b2o27b3o8b2o$12bo11bo27bo11bo4$8b2o17b2o
+19b2o17b2o$9bo17bo21bo17bo$6b3o19b3o15b3o7bo3bo7b3o$6bo23bo15bo23bo
+$16bo37b2o5b2o$14b4o37b2o3b2o$14bo3bo37b5o$13bo2bo2bo37b3o$14b3o2b2o
+37bo$15b2ob3o$15bobobo39bo$16b3o40bo$17bo41bo!

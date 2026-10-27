@@ -1,0 +1,15 @@
+x = 57, y = 57, rule = B3/S23
+19b2o16b2o$19b2o16b2o3$9b2o9bo16bo9b2o$10bo7b3o16b3o7bo$10bobo3bo2b2o
+7b2o7b2o2bo3bobo$11b2o3bob2o8b2o8b2obo3b2o$20bo16bo$4bo13b2o8b2o8b2o
+13bo$4b3o10bobo7bo2bo7bobo10b3o$7bo18bo4bo18bo$6b2o6bo2b2o8b4o8b2o2bo
+6b2o$14bo2b2o20b2o2bo$12b2o3bo22bo3b2o$16bo5b2o10b2o5bo$6b2o7bo6bo12bo
+6bo7b2o$10bob3o8b3o6b3o8b3obo$5bobobo2b2o11bo6bo11b2o2bobobo$2o3b3ob2o
+36b2ob3o3b2o$2o2b3obo40bob3o2b2o2$15b2o24b2o$15bobo22bobo$17bo22bo
+$17b2o20b2o$11bo34bo$10bobo32bobo$6b2obo2bo32bo2bob2o$6b2obo2bo32bo2bo
+b2o$10bobo32bobo$11bo34bo$17b2o20b2o$17bo22bo$15bobo22bobo$15b2o24b2o
+2$2o2b3obo40bob3o2b2o$2o3b3ob2o36b2ob3o3b2o$5bobobo2b2o11bo6bo11b2o2bo
+bobo$10bob3o8b3o6b3o8b3obo$6b2o7bo6bo12bo6bo7b2o$16bo5b2o10b2o5bo
+$12b2o3bo22bo3b2o$14bo2b2o20b2o2bo$6b2o6bo2b2o8b4o8b2o2bo6b2o$7bo18bo
+4bo18bo$4b3o10bobo7bo2bo7bobo10b3o$4bo13b2o8b2o8b2o13bo$20bo16bo$11b2o
+3bob2o8b2o8b2obo3b2o$10bobo3bo2b2o7b2o7b2o2bo3bobo$10bo7b3o16b3o7bo
+$9b2o9bo16bo9b2o3$19b2o16b2o$19b2o16b2o!

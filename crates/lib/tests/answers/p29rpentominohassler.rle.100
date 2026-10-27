@@ -1,0 +1,13 @@
+x = 52, y = 52, rule = B3/S23
+7b2o$8bo$6bo29b2o3b2o$6b5o24bo2bobo2bo$10bo20b2o3b2o3b2o3b2o$4b4o23bo
+15bo$4bo2bo20b2obo15bob2o$11b3o12bo2bob2o13b2obo2bo$18bo7b2obo6bo5bo
+6bob2o$3bo6bobo4bobo9bo6bo5bo6bo$2bobo3b2o8bo10b2o4bobo3bobo4b2o$2bobo
+5bo22bo11bo$3bo29bobo7bobo$33bo11bo$3bo$2bobo5bo7bo$2bobo3b2o8b3o$3bo
+6bobo5b2o23bo$18b2o14b4o4bobo$11b3o5b2ob2o9b4o6bo$4bo2bo12bo2bo7b3o2bo
+$4b4o12b3o8bo$10bo20bobo$6b5o21b2o$6bo$8bo$7b2o35b2o$44bo$46bo$19b2o
+21b5o$19bobo20bo$21bo8b3o12b4o$16bo2b3o7bo2bo12bo2bo$9bo6b4o9b2ob2o
+5b3o$8bobo4b4o14b2o$9bo23b2o5bobo6bo$32b3o8b2o3bobo$34bo7bo5bobo$49bo
+$7bo11bo$7bobo7bobo29bo$7bo11bo22bo5bobo$3b2o4bobo3bobo4b2o10bo8b2o3bo
+bo$3bo6bo5bo6bo9bobo4bobo6bo$2obo6bo5bo6bob2o7bo$o2bob2o13b2obo2bo
+12b3o$2b2obo15bob2o20bo2bo$5bo15bo23b4o$5b2o3b2o3b2o3b2o20bo$9bo2bobo
+2bo24b5o$10b2o3b2o29bo$44bo$44b2o!

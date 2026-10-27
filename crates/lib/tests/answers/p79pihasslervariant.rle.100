@@ -1,0 +1,7 @@
+x = 42, y = 27, rule = B3/S23
+6bo$6b3o16b2o$9bo15bobo$8b2o17bo$27b2o2$12bo27b2o$2o9bo2bo25bo$bo9b2o
+b3o24bo$bobo7bo2b3o23b2o$2b2o10bob2o21bo$10b2o4b2o11bobo2bobo2b3o$9b2o
+5b2o11bo2bo3bo5bo$10bob3o12b2o3bobobo4b2o$2o4bobobo3b2o12b3obo$o5bo3bo
+2bo11b2o5b2o$b3o2bobo2bobo11b2o4b2o$3bo21b2obo10b2o$b2o23b3o2bo7bobo
+$bo24b3ob2o9bo$2bo25bo2bo9b2o$b2o27bo2$14b2o$15bo17b2o$15bobo15bo
+$16b2o16b3o$36bo!

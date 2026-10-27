@@ -1,0 +1,13 @@
+x = 80, y = 52, rule = B3/S23
+18446744073709551615$61b2o$10bo48bo4bo$9bob2o45bo6bo$2b2o9bo33b2o8bo
+8bo$2bobo4bo2bobo32bobo7bo8bo$4bo6bo2bo34bo7bo8bo$5ob2o4b2o31b5ob2o5bo
+6bo$o5b2o37bo5bo7bo4bo$b2ob2o3b2o35b2ob2o3b2o5b2o$2bobo4bobo35bobo4bo
+bo$2bobo6bo35bobo6bo$3bo7b2o35bo7b2o11$61bo7bo$60bobo5bobo$61bo7bo
+4$56bo17bo$56bo5bo5bo5bo$56bo5bo5bo5bo$52b2o7b3o3b3o7b2o$51bobo23bobo
+$33bo2bo14bo27bo$23b3o7bo16b2o9b3o3b3o9b2o$9b2o11bo4bo9bo24bo5bo$9b2o
+10bo5bo8b2o19b2o3bo5bo3b2o$22bo8bo25b2o3bo5bo3b2o$23b2o8b2o27bo5bo
+$50b2o9b3o3b3o9b2o$23b2o8b2o16bo27bo$22bo8bo19bobo23bobo$21bo5bo8b2o
+14b2o7b3o3b3o7b2o$22bo4bo9bo18bo5bo5bo5bo$2b2o19b3o7bo13b2o7bo5bo5bo
+5bo$2bo30bo2bo10b2o7bo17bo$7bo41bobo$6obo37b5obo$o44bo5bo$b2ob2o3b2o
+35b2ob2o3b2o5bo7bo$2bobo4bobo35bobo4bobo3bobo5bobo$2bobo6bo35bobo6bo
+4bo7bo$3bo7b2o35bo7b2o!

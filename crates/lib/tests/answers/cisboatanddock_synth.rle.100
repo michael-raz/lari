@@ -1,0 +1,11 @@
+x = 114, y = 96, rule = B3/S23
+3$49b2o2b2o14b2o2b2o14b2o2b2o14b2o2b2o$49bo4bo14bo4bo14bo4bo14bo4bo
+$50b4o16b4o16b4o16b4o2$50b2o18b2o18b2o18b2o$50bobo17bobo17bobo17bobo
+$51bo19bo19bo19bo23$50bo19bo$49bobo17bobo17b2o2b2o14b2o2b2o$49bobo17bo
+bo17bo4bo14bo4bo$50bo19bo19b4o16b4o2$90b2o18b2o$90bobo17bobo$91bo19bo
+21$bo29bo19bo19bo$obo27bobo17bobo17bobo$obo27bobo17bobo17bobo$bo29bo
+19bo19bo17b2o2b2o14b2o2b2o$6b3o27b3o17b3o17b3o10bo4bo14bo4bo$90b4o
+16b4o2$53bo19bo16b2o18b2o$53bo19bo16bobo17bobo$53bo19bo17bo19bo
+24$39b2o18b2o18b2o2b2o24b2o2b2o$39b2o18b2o18bo4bo24bo4bo$80b4o26b4o
+2$2o18b2o18b2o18b2o18b2o28b2o$obo17bobo17bobo17bobo17bobo27bobo$bo19bo
+19bo19bo19bo29bo!

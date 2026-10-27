@@ -1,0 +1,11 @@
+x = 78, y = 42, rule = B3/S23
+27bo$27b3o$7bo22bo$7b3o19b2o$10bo$9b2o14b2o5b2o$25b2o4bobo$31b2o$37bo
+$13b3o4b2o15b3o$19b2ob2o16bo$14bo8bo15b2o$14bobobo4bo31b2o$13bo8bo
+27b2o3bobob2o$2b3o8bo4b3o29bo6bobo2bo$2b3o7bo4bobo21b2o8b3o3b2o2b2o
+$2b3o7bo3bo24bobo9bo11b2o4b2o$5b3o4b4o49bobo2bobo$5b3o13b2o44b4o$5b3o
+13b2o19b3o20bo2b2o2bo$41bobo21bo2b2o2bo$12bo2bo26bo12bo11bo2bo$10bo
+2b2o2bo22b3o11b3o$10bo2b2o2bo35bo2b2o2b2o13b3o$12b4o41bo2b2o13b3o$10bo
+bo2bobo37b3o8b3o6b3o$10b2o4b2o11bo23b2ob2o8b3obo7b3o$20b2o2b2o3b3o
+19b2obo10b2ob2ob2o5b3o$20bo2bobo6bo18bo2b2o9bo2b3obo5b3o$22b2obobo3b2o
+19b2o10bo3bob3o$26b2o36b4o$42b2o21b2o$42bo$43b3o22b2o$45bo22b2o$50b2o
+$49bobo4b2o$49b2o5b2o14b2o$72bo$52b2o19b3o$52bo22bo$53b3o$55bo!

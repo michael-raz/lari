@@ -1,0 +1,22 @@
+x = 120, y = 130, rule = B3/S23
+71bo$71b3o$74bo$73b2o13b2o$88bo$86bobo$86b2o$80b3o$79bo3bo$79b2ob2o
+$69bo8bo4bo$69bobo6b2ob2o$55bo13b2o$55b3o$58bo$41bo15b2o14b2o$41b3o
+30bo4bobo$44bo26b3o5b3o9b2o$43b2o26bo12bo6bo$57bo25bobo3bobo$57bo3bo
+21b2o4b2o$41b2o17bobo6b2o$60bobo6b2o$40bo19b2o$51b2o22b2o9b2o$40bo33bo
+bo8b2o$41b2o5bo25bo12bo$45b3o25b2o$47bo14b2o$34bo11bo15bo$32b3o5b2o
+11b2o8b3o$31bo7bobo11bobo9bo16b2o$16b2o13b2o6bo15bo26b2o$17bo20b2o
+15b2o$17bobo76b2o$18b2o11b2o63bobo$30b3o63bo$30b4o19bo$23bo6bo2b2o16bo
+bo$23bobo8b2o16b2o$23bob2o66b2o15b2o$66b2o26bo15bo$66b2o16bo9bobo11bo
+bo$84b3o8b2o11b2o$5b2o24b2o54bo15bo$6bo18bo5bo54b2o14bo$4bo8bo10bobo
+5b3o40b2o25b3o$2b4o5bobo9b2ob2o6bo9bo17bo12bo25bo5b2o$bo20b2o2bobo16bo
+17b2o8bobo33bo$o2b3o5bobob2o6b7o13b3o16b2o9b2o22b2o$b2o2bo4bobo2bo8b5o
+bo57b2o19bo$3b2o4bo7b2o11bo48b2o6bobo$3bo6bobob2obo11bo49b2o6bobo17b2o
+$4bo10b2o42b2o4b2o21bo3bo$b3o54bobo3bobo25bo$bo5b2o15bo33bo6bo12bo
+26b2o$8bo14bobo31b2o9b3o5b3o26bo$5b3o15b2o43bobo4bo30b3o$5bo12bo34bobo
+19b2o14b2o15bo$17b2o35b2o35bo$17bobo34bo37b3o$48b2o29b2o13bo$47bobo
+17b2ob2o6bobo$48bo17bo4bo8bo$66b2ob2o$56b2o8bo3bo$43bo11bob2obobo4b3o
+$42bo11b2o7bo$42bob5o8bo2bobo$27b3o13b7o6b2obobo$27bo16bobo2b2o24b2o
+$28bo9bo6b2ob2o9bobo13bo$38b3o5bobo10bo16b3o$41bo5bo30bo$40b2o2$68bo
+$69bo$46b2obo17b3o$37b2o8bobo$38b2o2bo6bo$39b4o$40b3o$40b2o11b2o$53bo
+bo$55bo$40b2o13b2o$41bo35bobo$38b3o37b2o$38bo39bo8$89bo$87bobo$88b2o
+8$98bo$99b2o$98b2o8$109bo$110bo$108b3o9$118bobo$119b2o$119bo!

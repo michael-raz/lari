@@ -1,0 +1,11 @@
+x = 62, y = 36, rule = B3/S23
+18b2o$19bo33b2o$19bob2o31bo$20bobo31bob2o$12b2o7bo33bobo$5b2o5b2o33b2o
+7bo$6bo13b2obo16b2o5b2o$6bobo6bo4bo4bo15bo13b2obo$7b2o7bo5b2o17bobo6bo
+4bo4bo$11bo5bo7bobo14b2o7bo5b2o$18bo7b2o18bo5bo7bobo$10bob2o39bo7b2o
+$9b2obo2bobo3b2o22bob2o$10bob2ob2o4bobo20b2obo2bobo3b2o$10bo3bo8bo21bo
+b2ob2o4bobo$12b3o8b2o20bo3bo8bo$47b3o8b2o$37bo21bo$37b3o16b3o$40bo14bo
+$39bo2b2o8b2o2bo$3b2o8b3o23b6o6b6o$4bo8bo3bo24bo2bo4bo2bo$4bobo4b2ob2o
+bo21b2o2b4o2b4o2b2o$5b2o3bobo2bob2o20bob3o2bo2bo2b3obo$14b2obo18b2obo
+bob4o2b4obobob2o$2o7bo26b2ob2o3b2o4b2o3b2ob2o$obo7bo5bo22bo16bo$4b2o
+5bo7b2o18bobo12bobo$2bo4bo4bo6bobo18b2o12b2o$4bob2o13bo$14b2o5b2o$6bo
+7b2o$5bobo$5b2obo$8bo$8b2o!

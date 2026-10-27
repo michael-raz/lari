@@ -1,0 +1,20 @@
+x = 111, y = 79, rule = B3/S23
+57bo$56bobo$57bo2$45bobo2bo$45b3obob2o$44bo6bo$45bo5b2o5b2o2bo$58b2o
+2b2o$44b2o5bo7b3obo$45bo6bo7b3o8bobo2bo$44b2obob3o19b3obob2o$46bo2bobo
+8b3o7bo6bo$59bob3o7bo5b2o$59b2o2b2o$60bo2b2o5b2o5bo$71bo6bo$70b2obob3o
+$72bo2bobo2$50b2o13bo$50bobo11bobo$51bo13bo$25b2o$26bo$7bo17bo$7b3o
+15b2o$10bo$9b2o27b2o$38b2o$14b2o37bo44b2o4b2o$13b5o7bo26bobo5b2obo5b2o
+5bo21bobo2bobo$12bo4bo6bobo24bob3o2b2obo8bo5b2o22bo2bo$12b2obobo5b2o
+b4o19b2o3b2o2bo6bob3o5b2obo20bo4bo$16bo7bob2o21b3o8bobo2bobo6bo2b3o
+19bo4bo$14bo9b3o21bo10b2obob3o6bobobo21bo4bo$15b3o7b2o22b3o8bobob2o6bo
+bobo24b2o$2b3o11b2o31b2o3b2o7b3o4b3o2bo32b3o$2b3o48bobo15bob2o33b3o
+$2b3o37bo10b2o17b2o34b3o$5b3o34b2o17b2o10bo37b3o$5b3o33b2obo15bobo
+48b3o$5b3o32bo2b3o4b3o7b2o3b2o31b2o11b3o$13b2o24bobobo6b2obobo8b3o
+22b2o7b3o$11bo4bo21bobobo6b3obob2o10bo21b3o9bo$11bo4bo19b3o2bo6bobo2bo
+bo8b3o21b2obo7bo$11bo4bo20bob2o5b3obo6bo2b2o3b2o19b4ob2o5bobob2o$12bo
+2bo22b2o5bo8bob2o2b3obo24bobo6bo4bo$10bobo2bobo21bo5b2o5bob2o5bobo26bo
+7b5o$10b2o4b2o44bo37b2o$76b2o$76b2o27b2o$105bo$89b2o15b3o$90bo17bo
+$89bo$89b2o$50bo13bo$49bobo11bobo$50bo13b2o2$38bobo2bo$38b3obob2o$37bo
+6bo$38bo5b2o5b2o2bo$51b2o2b2o$37b2o5bo7b3obo$38bo6bo7b3o8bobo2bo$37b2o
+bob3o19b3obob2o$39bo2bobo8b3o7bo6bo$52bob3o7bo5b2o$52b2o2b2o$53bo2b2o
+5b2o5bo$64bo6bo$63b2obob3o$65bo2bobo2$58bo$57bobo$58bo!

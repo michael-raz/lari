@@ -1,0 +1,14 @@
+x = 175, y = 45, rule = B3/S23
+3$7b2o128b2o$7bobo127bobo$7bo17b2o110bo17b2o$23bo2bo126bo2bo$3b3o
+127b3o$3bo18bo3bo106bo18bo3bo$4bo20b2obo105bo20b2obo$22bo3b3o123bo3b3o
+$21bo2bo126bo2bo$20b6o124b6o$21bo2bo126bo2bo$22b2obob2o123b2obob2o
+$24b3obo125b3obo$24bo2b2o125bo2b2o$25b3o127b3o$26bo129bo2$12bo129bo
+$11b3o127b3o$8bobobobo123bobobobo$6bo5bobo20b3o3b2o93bo5bobo20b3o3b2o
+$11b3ob2o17b2obo3bo99b3ob2o17b2obo3bo$5bo3bo2bob2obo15b2obo4b3ob2o88bo
+3bo2bob2obo15b2obo4b3ob2o$5b2ob3o4bob2o15bob2obo2bo3bo88b2ob3o4bob2o
+15bob2obo2bo3bo$10bo3bob2o17b2ob3o99bo3bob2o17b2ob3o$9b2o3b3o20bobo5bo
+93b2o3b3o20bobo5bo$37bobobobo123bobobobo$38b3o127b3o$39bo129bo2$25bo
+129bo$24b3o127b3o$23b2o2bo125b2o2bo$23bob3o125bob3o$23b2obob2o123b2obo
+b2o$27bo2bo126bo2bo$26b6o124b6o$27bo2bo126bo2bo$23b3o3bo123b3o3bo$23bo
+b2o20bo105bob2o20bo$25bo3bo18bo106bo3bo18bo$46b3o127b3o$25bo2bo126bo
+2bo$25b2o17bo110b2o17bo$42bobo127bobo$43b2o128b2o!

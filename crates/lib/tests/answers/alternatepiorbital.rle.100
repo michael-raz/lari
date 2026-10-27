@@ -1,0 +1,13 @@
+x = 60, y = 64, rule = B3/S23
+18446744073709551614$20bo$19bo2bo$22bo$17bo5bo$17b3o3b2o$15b2obo4bobo
+$16b2ob4ob3o$13bo2bobo4bo3b2o$12bo5bob2obo$18bob2obo5bo$13b2o3bo4bobo
+2bo11b2o$15b3ob4ob2o14b2o$16bobo4bob2o$17b2o3b3o$18bo5bo$19bo$19bo2bo
+31b2o$21bo31bobo$53b3o$52bo$51bob4o$49b2obo4bo$9b2o37bobobob2obob3o
+$9b2o37b3obob2obobobo$52bo4bob2o$53b4obo$57bo$54b3o$54bobo$54b2o3$24bo
+$22b2obo$22b2o$7b2o17b2o$6bobo13b2o2b2o$6b3o13b4o$5bo16bo4bo$4bob4o
+8b6ob3o$2b2obo4bo7bob3o2bo$bobobob2obob3o3bo3b2o28b2o$b3obob2obobobo
+4b2obo2bo26b2o$5bo4bob2o5b2ob2ob3o$6b4obo9b2o4bo$10bo11b4o$7b3o12b2o
+2b2o$7bobo16b2o13bo$7b2o13b2o16bo2bo$22b2obo17bo$24bo13bo5bo$38b3o3b2o
+$36b2obo4bobo$21b2o14b2ob4ob3o$21b2o11bo2bobo4bo3b2o$33bo5bob2obo$39bo
+b2obo5bo$34b2o3bo4bobo2bo$36b3ob4ob2o$37bobo4bob2o$38b2o3b3o$39bo5bo
+$40bo$40bo2bo$42bo!

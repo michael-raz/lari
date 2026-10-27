@@ -1,0 +1,10 @@
+x = 71, y = 24, rule = B3/S23
+7bo56bo$6b2o17b2o18b2o17b2o$5b3o17bo20bo17b3o$9b2o6bo5bobo20bobo5bo
+6b2o$8b3o5b3o4b2o22b2o4b3o5b3o$8b3o5bo2bo32bo2bo5b3o$7bo2bo5b3o8b2o
+14b2o8b3o5bo2bo$2b2o4b3o5b3o7bobo14bobo7b3o5b3o4b2o$bobo5bo6b2o9bo16bo
+9b2o6bo5bobo$bo17b3o10bobo2bobo10b3o17bo$2o17b2o6b2o3bobo2bobo3b2o6b2o
+17b2o$19bo7b2o3bob4obo3b2o7bo$34b4o$9bo20bobo6bobo20bo$2o6bo21b2o8b2o
+21bo6b2o$bo8bob2o44b2obo8bo$bobo5b5o4b2o32b2o4b5o5bobo$2b2o4b4o5bo2bo
+30bo2bo5b4o4b2o$7bobo7bo2bo30bo2bo7bobo$6bo2bo7bobo32bobo7bo2bo$6bo2bo
+5b4o4b2o22b2o4b4o5bo2bo$7b2o4b5o5bobo20bobo5b5o4b2o$13b2obo8bo20bo8bo
+b2o$18bo6b2o18b2o6bo$17bo36bo!

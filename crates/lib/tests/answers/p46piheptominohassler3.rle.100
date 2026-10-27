@@ -1,0 +1,12 @@
+x = 86, y = 42, rule = B3/S23
+18446744073709551615$35bo$30bo3bo$29bo7bo$29bo2b2o5bo$18bo11b2o5b2obo
+$16b3o12b3o3b2ob3o$15bo27bo9bo$16b3o12b3o3b2ob3o9bobo$18bo11b2o5b2obo
+11bobo$29bo2b2o5bo11b2ob2o$29bo7bo17bo$30bo3bo16b2obo$35bo15b2obobo
+$37bo17b2o$36b3o$15bo19b5o31bo$14b2o8b2o8bo5bo30b2o$2o11b3obo5bo2bo
+6b2o5b2o16b2o9bob3o11b2o$2o10b2o8b2ob3o4b2o7b2o15b2o13b2o10b2o$13b2o
+8b2obo6bobo3bobo30b2o$14bo10bo8b2o3b2o31bo2$14bo31b2o3b2o8bo10bo$13b2o
+30bobo3bobo6bob2o8b2o$2o10b2o13b2o15b2o7b2o4b3ob2o8b2o10b2o$2o11b3obo
+9b2o16b2o5b2o6bo2bo5bob3o11b2o$14b2o30bo5bo8b2o8b2o$15bo31b5o19bo
+$48b3o$30b2o17bo$30bobob2o15bo$32bob2o16bo3bo$31bo17bo7bo$31b2ob2o11bo
+5b2o2bo$32bobo11bob2o5b2o11bo$32bobo9b3ob2o3b3o12b3o$33bo9bo27bo$44b3o
+b2o3b3o12b3o$46bob2o5b2o11bo$47bo5b2o2bo$49bo7bo$52bo3bo$51bo!

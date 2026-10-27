@@ -1,0 +1,12 @@
+x = 56, y = 43, rule = B3/S23
+$24bo7bo$19b2o3b2o5b2o3b2o$19b2o3b2o5b2o3b2o$24bo7bo$22bo2bo5bo2bo
+$22bob3o3b3obo$21b2o3bo3bo3b2o$20bo3b2o5b2o3bo$20b3obo7bob3o$21bo2bo
+7bo2bo$22bo11bo$21b2o3b2ob2o3b2o$21b2o3b2ob2o3b2o$22bo11bo$17b2o19b2o
+$17b2o19b2o2$7b2o39b2o$2o6b3o35b3o6b2o$o5bo4bo8bo15bo8bo4bo5bo$b3obo
+b5o7bo17bo7b5obob3o$3bobo4bo7bo2bo13bo2bo7bo4bobo$4bobo2b3o7bobo13bobo
+7b3o2bobo$8b3obo31bob3o$2bo5b2o12bo11bo12b2o5bo$bobo4b2o3bo7b3o9b3o7bo
+3b2o4bobo$bobo4b2o3bo7b4o7b4o7bo3b2o4bobo$2bo5b2o7b2o3b2ob2o3b2ob2o
+3b2o7b2o5bo$8b3obo4b3ob5o5b5ob3o4bob3o$4bobo2b3o33b3o2bobo$3bobo4bo
+7b2obo13bob2o7bo4bobo$b3obob5o6b2o3b2o7b2o3b2o6b5obob3o$o5bo4bo8b5o
+7b5o8bo4bo5bo$2o6b3o35b3o6b2o$7b2o39b2o6$23b2o7b2o$23bo9bo$24b3o3b3o
+$26bo3bo!

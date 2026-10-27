@@ -1,0 +1,10 @@
+x = 158, y = 87, rule = B3/S23
+8$42b3o27b3o3$2b2o18b2o24bo3b2o24bo3b2o$2b2o18b2o23bobo2b2o23bobo2b2o
+27bo39bo$47bobo27bobo30b3o37b3o$48bo29bo27b2obo3b2o4b2o25b2obo3b2o4b2o
+$106b2o2b2o2bo4b2o25b2o2b2o2bo4b2o$111b2obo36b2obo4$111b2obo36b2obo
+$2b2o18b2o12b2o14b2o12b2o14b2o22b2o2b2o2bo4b2o25b2o2b2o2bo4b2o$2b2o
+18b2o12b2o14b2o12b2o14b2o22b2obo3b2o4b2o25b2obo3b2o4b2o$110b3o37b3o
+$111bo39bo45$84b3o3$90bo3b2o$89bobo2b2o$89bobo$78b2o10bo$78b2o$97bo
+$96b2o$96bobo$85bo3b2o$83bobo4b2o$78b2o4b2o3bo4b2o$78b2o14b2o3$87b2o
+$79b2o5bobo8bo$78bo2bo6bo7b2o$77bo2bo15bobo$76bo3b2o9bo$76bo4b2o8b2o
+$76bo4b2o7bobo$96bo$95b2o$95bobo!

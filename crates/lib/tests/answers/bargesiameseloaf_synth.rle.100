@@ -1,0 +1,13 @@
+x = 144, y = 74, rule = B3/S23
+4$42bo19bo19bo19bo$41bobo17bobo17bobo17bobo$42b2o18b2o18b2o18b2o20b2o
+18b2o$86bo19bo16bo2bo16bo2bo$85bobo17bobo15bobobo15bobobo$84bobo17bobo
+17bobo17bobo$85bo19bo19bo19bo14$82bo19bo$81bobo17bobo$82b2o18b2o$46bo
+19bo19bo19bo$45bobo17bobo17bobo17bobo$44bobo17bobo17bobo17bobo$45bo
+19bo19bo19bo15$82b2o18b2o$82b2o18b2o20b2o18b2o$86bo19bo16bo2bo16bo2bo
+$85bobo17bobo15bobobo15bobobo$84bobo17bobo17bobo17bobo$85bo19bo19bo
+19bo11$113bo$112bobo$111b2obo$112bo2b2o$111b3ob2o$4b2o18b2o18b2o18b2o
+38b2o4b2o4b2o26b2o$3bo2bo16bo2bo16bo2bo16bo2bo36bo2bo4bo3b3o25bo2bo
+$3bobo17bobo17bobo17bobo37bobo3b6o2bo25bobobo$4bo19bo19bo19bo39bo3bo
+2b5o28bobo$109b4obo30bo$110bo$45b2o18b2o38b2o$44bo2bo16bo2bo32b2o2bo
+2bo$44bo2bo16bo2bo31bob2obo2bo$45b2o18b2o38b2o2b3o$109bo$100bo9bo
+$100bo!

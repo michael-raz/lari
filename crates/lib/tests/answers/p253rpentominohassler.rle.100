@@ -1,0 +1,11 @@
+x = 65, y = 53, rule = B3/S23
+21b2o24b2o$11b2o8b2o24b2o8b2o$12bo44bo$12bobo40bobo$13b2o40b2o$28b2o
+10b2o$28b2o10b2o4$3b2o60b2o$2bo2bo23bo10bo23bo2bo$2bobo24bo10bo24bobo
+$5bo23bo10bo23bo$2bo2bo58bo2bo$2bo3bo18b3o3b3o2b3o3b3o18bo3bo$3bobo
+58bobo$4bo17b2o22b2o17bo$22b2o7bo6bo7b2o$30bobo4bobo$30bo2bo2bo2bo
+$31b2o4b2o2$20bo28bo$21bo26bo$19b3o26b3o3$19b3o26b3o$21bo26bo$20bo28bo
+2$31b2o4b2o$30bo2bo2bo2bo$30bobo4bobo$22b2o7bo6bo7b2o$4bo17b2o22b2o
+17bo$3bobo58bobo$2bo3bo18b3o3b3o2b3o3b3o18bo3bo$2bo2bo58bo2bo$5bo23bo
+10bo23bo$2bobo24bo10bo24bobo$2bo2bo23bo10bo23bo2bo$3b2o60b2o4$28b2o
+10b2o$28b2o10b2o$13b2o40b2o$12bobo40bobo$12bo44bo$11b2o8b2o24b2o8b2o
+$21b2o24b2o!

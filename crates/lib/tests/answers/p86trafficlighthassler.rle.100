@@ -1,0 +1,13 @@
+x = 90, y = 43, rule = B3/S23
+40bo$40bobo$39bobo$41bo33bo$74bobo$72b3obo$38b3o30bo4bob2o$37b3obo29bo
+bobobobo$37bo3bo30b2obobo$36bob3o35bobo$23bo13b2o37b2obo$22bobo12bo
+2b2o36bobo$20b3obo15b2o10b2o27bo$19bo4bob2o14bo10bo28bo$19bobobobobo
+12b3o10bobo19b2o2bo2b2o$20b2obobo15bo12b2o18b3obobob3o$24bobo12bobo
+21bo11b2o2bo2b2o$24b2obo11b2o21b3o11bo5bo$26bobo32b5o11b5o$2o27bo30bo
+5bo11b3o$bo28bo28b2o2bo2b2o11bo$bobo19b2o2bo2b2o26b3obobob3o18b2o$2b2o
+18b3obobob3o26b2o2bo2b2o19bobo$11bo11b2o2bo2b2o28bo28bo$10b3o11bo5bo
+30bo27b2o$9b5o11b5o32bobo$8bo5bo11b3o21b2o11bob2o$7b2o2bo2b2o11bo21bo
+bo12bobo$6b3obobob3o18b2o12bo15bobob2o$7b2o2bo2b2o19bobo10b3o12bobobo
+bobo$8bo28bo10bo14b2obo4bo$9bo27b2o10b2o15bob3o$10bobo36b2o2bo12bobo
+$11bob2o37b2o13bo$12bobo35b3obo$13bobob2o30bo3bo$11bobobobobo29bob3o
+$11b2obo4bo30b3o$14bob3o$14bobo$15bo33bo$49bobo$48bobo$50bo!

@@ -1,0 +1,6 @@
+x = 32, y = 32, rule = B3/S23
+5bo$5b3o$8bo$7b2o15b2o$24b2o3$16b3o$16b3o$14bo5bo7bo$14bobobobo6bobo
+$27bob3o$4b2o7bobobobo4b2obo4bo$3bobo7bo5bo4b2o2bobobo$3bo11b3o9b2ob2o
+$2b2o11b3o2$15b3o11b2o$b2ob2o9b3o11bo$obobo2b2o4bo5bo7bobo$o4bob2o4bo
+bobobo7b2o$b3obo$3bobo6bobobobo$4bo7bo5bo$14b3o$14b3o3$7b2o$7b2o15b2o
+$24bo$25b3o$27bo!

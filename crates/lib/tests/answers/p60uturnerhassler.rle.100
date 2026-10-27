@@ -1,0 +1,13 @@
+x = 71, y = 40, rule = B3/S23
+18446744073709551615$24bo$13bo9b3o$12b3o28b3o5b3o$11bobobo28bo7bo$11bo
+bobo7b3o18bo7bo6bo$12b3o28b3o5b3o5b3o$13bo9bobo4b2o4b2o24bo$23bobo4bo
+bo2bobo5b3o5b3o7b2o$32b4o7b3o5b3o$13bo9b3o4bo2b2o2bo26b2o$12b3o15bo
+2b2o2bo5b3o5b3o9bobo$11bobobo16bo2bo8bo7bo10b2o$3o8bobobo7b3o18bo7bo
+$bo10b3o9bo18b3o5b3o$bo11bo$3o2$3o22b3o9b3o9bo13bo5b3o$3o22b2o10bobo
+8b2o11b2ob2o4bo$7b3o12bob6o5b2o2b2o6b3o11bo8bo$3o3bo3bo11b8o5b2o11b2o
+11bo3bo3b3o$bo8bo11b6ob2o5bo4b2o6bo12b3o$bo4b2ob2o11b2o3b3o6b2o3b3o
+25b3o$3o5bo13bo5bo8bo3b2o26b3o2$69b3o$58bo11bo$18b3o5b3o18bo9b3o10bo
+$19bo7bo18b3o7bobobo8b3o$7b2o10bo7bo8bo2bo16bobobo$6bobo9b3o5b3o5bo
+2b2o2bo15b3o$6b2o26bo2b2o2bo4b3o9bo$18b3o5b3o7b4o$9b2o7b3o5b3o5bobo2bo
+bo4bobo$9bo24b2o4b2o4bobo9bo$10b3o5b3o5b3o28b3o$12bo6bo7bo18b3o7bobobo
+$19bo7bo28bobobo$18b3o5b3o28b3o$46b3o9bo$47bo!

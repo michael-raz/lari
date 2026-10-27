@@ -1,0 +1,7 @@
+x = 50, y = 69, rule = B3/S23
+8$10b2o21b3o$9bob3o$9bo4bo16bo$8b2o3b2o16bo$8bo4bo17bo$9b3obo$11b2o
+20b3o8$51b2o$51b2o9$48b2o$48b2o3$51b3o$51bobo$10b3o25b2o14b2o$37bo2bo
+8b7o$8bo5bo23b2o8bo2bob3o$8bo5bo33b2o2bob2o$8bo5bo37bob2o$50bo3b2o
+$10b3o37bo$53bo$50b2obo$52bo2$52b2o$52b2o$51bob2o$49b2o2bo$50b3o$51bo
+11$12b3o3$5bo4b2o$5bo3bob3o$5bo3bo4bo$8b2o3b2o$8bo4bo3bo$9b3obo3bo
+31b2o$11b2o4bo30bo2bo$49b2o2$8b3o!

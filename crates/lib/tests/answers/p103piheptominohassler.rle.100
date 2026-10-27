@@ -1,0 +1,19 @@
+x = 79, y = 85, rule = B3/S23
+53bo$52bobo$53bo4$54b2ob3o$53bobob4o$52b2o3bo2bo3b2o$53bob2o6b4o$63bo
+2bo$54bo5bobobo$51b2ob2o4bobob2o$50bobobo2b2o2bo2b2o3b2o$39bo6bo3b2obo
+3b2o3b2o2b2o2b2o$38bobo4b3o4bo13b3ob2o$39bo4bo4b3o13bo3b2o$44b2obo2bo
+14bob2o$47bo18bo$44b3o4b2o14b2o2b2o$44b2o5b2o19b2o$44b2o19b2o5b2o
+$45b2o2b2o14b2o4b3o$51bo18bo$33bo15b2obo14bo2bob2o$32bobo12b2o3bo13b3o
+4bo4bo$32bobo11b2ob3o13bo4b3o4bobo$30b3ob2o10b2o2b2o2b2o3b2o3bob2o3bo
+6bo$29bo17b2o3b2o2bo2b2o2bobobo$30b3ob2o16b2obobo4b2ob2o$32bob2o17bobo
+bo5bo$51bo2bo$51b4o6b2obo$32b2o18b2o3bo2bo3b2o$31b3o23b4obobo$31b2o
+3b3o19b3ob2o$26bo11bo$25bo10b3o$20b2o3bob2ob2o$20b2o4b6o32bo$27b4o32bo
+bo$64bo3$15bo$14bobo32b4o$15bo32b6o4b2o$48b2ob2obo3b2o$41b3o10bo$41bo
+11bo$16b2ob3o19b3o3b2o$15bobob4o23b3o$14b2o3bo2bo3b2o18b2o$15bob2o6b4o
+$25bo2bo$16bo5bobobo17b2obo$13b2ob2o4bobob2o16b2ob3o$12bobobo2b2o2bo
+2b2o3b2o17bo$bo6bo3b2obo3b2o3b2o2b2o2b2o10b2ob3o$obo4b3o4bo13b3ob2o
+11bobo$bo4bo4b3o13bo3b2o12bobo$6b2obo2bo14bob2o15bo$9bo18bo$6b3o4b2o
+14b2o2b2o$6b2o5b2o19b2o$6b2o19b2o5b2o$7b2o2b2o14b2o4b3o$13bo18bo$11b2o
+bo14bo2bob2o$9b2o3bo13b3o4bo4bo$8b2ob3o13bo4b3o4bobo$8b2o2b2o2b2o3b2o
+3bob2o3bo6bo$9b2o3b2o2bo2b2o2bobobo$14b2obobo4b2ob2o$15bobobo5bo$13bo
+2bo$13b4o6b2obo$14b2o3bo2bo3b2o$19b4obobo$20b3ob2o4$26bo$25bobo$26bo!

@@ -1,0 +1,14 @@
+x = 96, y = 62, rule = B3/S23
+7bo22bo$7b3o18b3o$10bo16bo$9b2o16b2o4$5bo26bo$6bo24bo$4bo28bo$3bo30bo
+$2ob2o6b2o2b2o4b2o2b2o6b2ob2o$o10bob2obo4bob2obo10bo$2o2bo7b4o6b4o7bo
+2b2o$2b3o8b2o8b2o8b3o3$2b3o8b2o8b2o8b3o$2o2bo7b4o6b4o7bo2b2o4b3o$o10bo
+b2obo4bob2obo10bo5b3o$2ob2o6b2o2b2o4b2o2b2o6b2ob2o24b2o$3bo30bo27b2o
+$4bo28bo$6bo24bo15bo$5bo26bo12b4o$42bo2b2o2b2o$41bob3o2b3o$40bo3b2o
+3b2o$9b2o16b2o12bo2bob3o$10bo16bo15b2ob2o$7b3o18b3o$7bo22bo35bo22bo
+$66b3o18b3o$49b2ob2o15bo16bo$48b3obo2bo12b2o16b2o$46b2o3b2o3bo$46b3o
+2b3obo$46b2o2b2o2bo$48b4o12bo26bo$49bo15bo24bo$63bo28bo$33b2o27bo30bo
+$33b2o24b2ob2o6b2o2b2o4b2o2b2o6b2ob2o$51b3o5bo10bob2obo4bob2obo10bo
+$52b3o4b2o2bo7b4o6b4o7bo2b2o$61b3o8b2o8b2o8b3o3$61b3o8b2o8b2o8b3o
+$59b2o2bo7b4o6b4o7bo2b2o$59bo10bob2obo4bob2obo10bo$59b2ob2o6b2o2b2o
+4b2o2b2o6b2ob2o$62bo30bo$63bo28bo$65bo24bo$64bo26bo4$68b2o16b2o$69bo
+16bo$66b3o18b3o$66bo22bo!

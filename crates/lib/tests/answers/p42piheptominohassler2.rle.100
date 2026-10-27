@@ -1,0 +1,11 @@
+x = 50, y = 45, rule = B3/S23
+$8b6o$8b4o$11bobo$13b2o31b2o$10bo2bob2o28b4o$9bo3bob2o27b2obobo$8b2obo
+3bo27b2o3b2o$8b2obo2bo29bo$10b2o30bo$11bobo29b3o$13b4o24b2o2b2o$11b6o
+27b2o2b2o$45b3o$48bo$2o12bo31bo$bo12bo26b2o3b2o$bobo10bo26bobob2o$2b2o
+8b7o23b4o$11b3obob3o23b2o$7b3obo7bob3o$6bobo4bobobo4bobo5b3o5b3o$13bo
+bobo10b5o5b5o$7b4o2b5o2b4o4b2o4bobo4b2o$8b2o4bobo4b2o4b4o2b5o2b4o$8b5o
+5b5o10bobobo$10b3o5b3o5bobo4bobobo4bobo$27b3obo7bob3o$6b2o23b3obob3o
+$5b4o23b7o8b2o$4b2obobo26bo10bobo$3b2o3b2o26bo12bo$4bo31bo12b2o$2bo
+$3b3o$b2o2b2o27b6o$4b2o2b2o24b4o$5b3o29bobo$8bo30b2o$6bo29bo2bob2o$b2o
+3b2o27bo3bob2o$bobob2o27b2obo3bo$2b4o28b2obo2bo$3b2o31b2o$37bobo$39b4o
+$37b6o!

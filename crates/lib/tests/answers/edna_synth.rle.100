@@ -1,0 +1,11 @@
+x = 333, y = 39, rule = B3/S23
+2$46bo81bo73bo$45bobo79bobo71bobo77bo$45bobo79bobo71bobo76bobo$46bo
+81bo11b2o60bo11b2o64bobo$139bo2bo70bo2bo14b3o47bo11b2o16bo$140b2o72b2o
+76bo2bo15bo$293b2o16bo3$49b2o80b2o72b2o$49b2o80b2o72b2o77b2o$284b2o
+36bo3bo$321bo3b3o$321bo5b2o$322b3obo3$321b3o$320b4o9b2o$320b3obobo7bo
+$317bo3bob2obo4bobo$7b2o306bob5obo6bobo$6bo2bo65b2o80b2o72b2o81bo3b4o
+bo2bo4bo$7b2o65bo2bo78bo2bo70bo2bo76b2o3b2o7bob2o$2b2o71b2o80b2o72b2o
+76bo2bo3bo8b3o$2b2o66b2o80b2o72b2o82b2o21b3o$70b2o80b2o72b2o77b2o9bo
+8b3o$305b2o8b2o7bob2o$314bo3b4obo2bo4bo$315bob5obo6bobo$317bo3bob2obo
+4bobo$320b3obobo7bo$320b4o9b2o$321b3o3$322b3obo$321bo5b2o$321bo3b3o
+$322bo3bo!

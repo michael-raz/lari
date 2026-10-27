@@ -1,0 +1,8 @@
+x = 64, y = 42, rule = B3/S23
+47b2o$47b2o3$16b2o$16b2o29b3o$47b3o$46bo3bo$45bo5bo$15b3o28bo3bo$15b3o
+29b3o$14bo3bo14b2o$13bo5bo14bo$14bo3bo14bo$15b3o15b2o$40b3o$39b4o
+2$33bob3o2bo10bo2bo4bo2bo$33bo3bo11b3o2b6o2b3o$24bobo6bob2o4bo9bo2bo
+4bo2bo$27bo9bo$2bo2bo4bo2bo9bo4b2obo6bobo$3o2b6o2b3o11bo3bo$2bo2bo4bo
+2bo10bo2b3obo2$22b4o$22b3o$30b2o15b3o$31bo14bo3bo$30bo14bo5bo$30b2o
+14bo3bo$15b3o29b3o$14bo3bo28b3o$13bo5bo$14bo3bo$15b3o$15b3o29b2o$47b2o
+3$16b2o$16b2o!

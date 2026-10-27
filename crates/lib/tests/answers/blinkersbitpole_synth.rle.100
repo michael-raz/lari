@@ -1,0 +1,7 @@
+x = 255, y = 9, rule = B3/S23
+10$28bo29bo$27bobo27bobo27b2o40b2o35b2o28b2o$26bobo3b2o22bobo27bobo
+39bobo34bobo27bobo22b2o28b2o$26bo5b2o22bo29bo41bo36bo24bo4bo24bobob3o
+23bobob3o$b2o19bob2obo24bob2obo24bob2obo36bob2obo31bob2obo22bobob2obo
+$b2o19b2obobo24b2obobo24b2obobo36b2obobo31b2obobo22bob2obobo23bo2bobo
+24bo2bobo$26bo29bo29bo35b2o4bo30b2o4bo21b2obo4bo25bo4bo24bo4bo$121bobo
+34bobo26bo2bo30bo3b2o24bo3b2o$122bo34bobo28b2o$157b2o!

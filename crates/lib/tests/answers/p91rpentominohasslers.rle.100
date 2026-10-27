@@ -1,0 +1,12 @@
+x = 99, y = 39, rule = B3/S23
+$19bo8b2o57b2o$19b3o6b2o59bo2b2o$22bo66bo2b2o$21b2o65b2o$16b2o21b2o
+45bo$17bo21bo46bobobo$17bobo17bobo46bo3b2o$9b2o7b2o17b2o30bo17b2o3bo
+$10bo58b3o16bobobo$10bobo59bo19bo$11b2o12bo45b2o16b2o$22bo4bo57b2o2bo
+$22bo5bo49b2o5b2o2bo$22bo55b2o10b2o$24bo2bo41b2o$24b3o42b2o2$81b3o
+$69b3o4b3o2bobo$62b2o5b3o4b3o2b3o$62bobo12bo$64bo2bo17b3o5b2obo$64b5o
+24b2ob3o$55b2o5b2o3b2o2b2o26bo$14b3o39bo4bo2b2o3b2ob3o8b2o8b2ob3o$13bo
+2bo38bo3bo2bobo2bo2bo4bo7b2o9bobo$18bo35bob7o2bob2obob3o19bobo$12bo5bo
+35bobo6bobo3bo2bo22bo$13bo4bo34b2obob3o2b2o2bobobo$15bo12b2o24bo8bo2bo
+bobo$28bobo21bo2bobo3bobo4bo$30bo21b2obobo3bobo2bobo$2b2o17b2o7b2o23bo
+bobobobobobo$bobo17bobo31bo2b2obobob2o$bo21bo30b2o4bobobo$2o21b2o35bo
+3bo$18b2o39b2o3b2o12b2o$18bo60bo$11b2o6b3o54b3o$11b2o8bo54bo!

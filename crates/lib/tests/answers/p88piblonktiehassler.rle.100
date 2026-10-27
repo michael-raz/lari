@@ -1,0 +1,11 @@
+x = 64, y = 50, rule = B3/S23
+9bo$7b3o$6bo$6b2o2$37bo6bo$3bo31bobo4b3o$2bob2o30bobo2bo$2bob2o2b2o
+26bo4b2o$3bo2bo3bo$7bobo$7bo$7b2o9bo6bo$bo6bo9b3o4bobo$b2o18bo2bobo
+$2bo17b2o4bo10bo16bo$obo33b3o13b3o$18446744073709551615bo3bo2bo28bo
+2b2o11bo$2o2b2obo26b2o15b2o$4b2obo26bobo3bo$6bo28b2o$25bo10b2o4bo
+$24b3o10b2o3b3o$2b2o19b2o2bo8b2o4bo$3bo23b2o6b2o25bo$3o19bo3bobo5bobo
+3bo19b3o$o25b2o6b2o23bo$20bo4b2o8bo2b2o19b2o$18b3o3b2o10b3o$20bo4b2o
+10bo$26b2o28bo$22bo3bobo26bob2o$10b2o15b2o26bob2o2b2o$11bo11b2o2bo28bo
+2bo3bo$8b3o13b3o33bobo$8bo16bo10bo4b2o17bo$36bobo2bo18b2o$35bobo4b3o
+9bo6bo$37bo6bo9b2o$55bo$53bobo$52bo3bo2bo$20b2o4bo26b2o2b2obo$21bo2bo
+bo30b2obo$18b3o4bobo31bo$18bo6bo2$55b2o$56bo$53b3o$53bo!

@@ -1,0 +1,16 @@
+x = 61, y = 51, rule = B3/S23
+16bo28bo$15bobo26bobo$10bo4bobo26bobo4bo$9bobo2b2ob2o2b2o16b2o2b2ob2o
+2bobo$10bo3bo5bo2bo14bo2bo5bo3bo$15b3o4bo2bo10bo2bo4b3o$8b5o4bo2bobo
+b2o10b2obobo2bo4b5o$7bo4bo5b2o2bo16bo2b2o5bo4bo$6bo2bo11b2o16b2o11bo
+2bo$3bo2bob2o42b2obo2bo$2bobobo5bo36bo5bobobo$3bo2bo4bobo34bobo4bo2bo
+$6b2o2bo2bo34bo2bo2b2o$11b2o36b2o$3b2o52b2o$b3obo50bob3o$o4bo24b2o24bo
+4bo$b3ob2o23b2o23b2ob3o$3bo3bo46bo3bo$7bo46bo$4bobo48bobo$3bo4bo44bo
+4bo$3bob4o44b4obo$4bo52bo$6bo48bo$5b2o48b2o$9b2o40b2o$10bo19b2o19bo
+$8bo21b2o21bo$7bob4o36b4obo$7bo4bo36bo4bo$8bobo40bobo$11bo4bo28bo4bo
+$7bo3bo3bo30bo3bo3bo$5b3ob2o4b3o26b3o4b2ob3o$4bo4bo42bo4bo$5b3obo42bo
+b3o$7b2o44b2o$15b2o4bo8b2o8bo4b2o$10b2o2bo2bo3bobo6b2o6bobo3bo2bo2b2o
+$7bo2bo4bobo3b2o16b2o3bobo4bo2bo$6bobobo5bo28bo5bobobo$7bo2bob2o34b2o
+bo2bo$10bo2bo11b2o8b2o11bo2bo$11bo4bo5b2o2bo8bo2b2o5bo4bo$12b5o4bo2bo
+bob2o2b2obobo2bo4b5o$19b3o4bo2bo2bo2bo4b3o$14bo3bo5bo2bo6bo2bo5bo3bo
+$13bobo2b2ob2o2b2o8b2o2b2ob2o2bobo$14bo4bobo18bobo4bo$19bobo18bobo
+$20bo20bo!

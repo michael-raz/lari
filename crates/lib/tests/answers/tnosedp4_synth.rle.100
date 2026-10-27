@@ -1,0 +1,11 @@
+x = 285, y = 31, rule = B3/S23
+11$216b3o$215bo4bo$213b2obo$217bo3bo$213b2obo$215bo3b2o$215bo$216b3o
+4$10bo32bo27b2o18b2o22b2o24b2o32b2o$9bobo30bobo26bobo6bo10bobo21bobo
+23bobo7b2o22bobo7b2o43b2o7b2o43b2o7b2o$10bo2b2o28bo2bobo23bo2bobobobo
+10bo2bobob2o15bo2bobob2o17bo2bobobo2bo23bo2bobobo2bo43bo2b2ob2o2bo43bo
+2b2ob2o2bo$11b2obo29b2ob2o24b2ob2ob2o12b2ob2ob2o16b2ob3obo18b2ob3ob2o
+25b2ob3ob2o45b2obobob2o45b2obobob2o$12bo32bo28bo19bo23bo25bo5bo27bo5bo
+47bobobobo47bobobobo$12bobo30bob2o25bob2ob2o13bob2ob2o17bob3obo19bob3o
+bo27bob3obo47bob3obo47bo5bo$13b2o31bobo26bobobobo13bobob2o18bobob2o
+20bobobo29bobobo49b5o49bo3bo$80bo207b3o$185b2o$185b2o102bo$234b3o51b3o
+$235bo$235bo6$180b2o$179bobo$179b2o!

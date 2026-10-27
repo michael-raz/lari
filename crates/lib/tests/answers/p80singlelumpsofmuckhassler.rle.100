@@ -1,0 +1,12 @@
+x = 41, y = 46, rule = B3/S23
+18446744073709551615$16bo$15bob2o$14bo3bo$14bo5bo$11bo2bo5bo$10bobo7bo
+$11b2o2b4o2$11b2o2b4o14bo3bo$10bobo7bo11bobobobo$11bo2bo5bo12b2ob2o
+$14bo5bo10b3o3b3o$14bo3bo11b2o7b2o$15bob2o10b3obo3bob3o$16bo11b2o3b2o
+b2o3b2o$20b3o5b3o2b2ob2o2b3o$3b3o3b3o7bo3bo5b2o9b2o$2bo3bobo3bo6bobo
+2bo5b4o3b4o$2bo3bobo3bo5bo3b3o7bo5bo$bob4ob4obo18bo5bo$b2o9b2o4bo$34bo
+3bo$33bobobobo$5b2ob2o24b2ob2o$4bobobobo$5bo3bo$25bo4b2o9b2o$5bo5bo
+18bob4ob4obo$5bo5bo7b3o3bo5bo3bobo3bo$3b4o3b4o5bo2bobo6bo3bobo3bo$2b2o
+9b2o5bo3bo7b3o3b3o$b3o2b2ob2o2b3o5b3o$b2o3b2ob2o3b2o11bo$2b3obo3bob3o
+10b2obo$3b2o7b2o11bo3bo$4b3o3b3o10bo5bo$6b2ob2o12bo5bo2bo$5bobobobo
+11bo7bobo$6bo3bo14b4o2b2o2$25b4o2b2o$23bo7bobo$23bo5bo2bo$23bo5bo$25bo
+3bo$25b2obo$27bo!

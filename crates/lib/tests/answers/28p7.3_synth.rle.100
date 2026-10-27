@@ -1,0 +1,8 @@
+x = 189, y = 12, rule = B3/S23
+13$35bobo19bobo25bobo26bobo33bobo31bobo$4b2o29b2obo18b2obo24b2obo25b2o
+bo32b2obo30b2obo$5bo2bo29bo2bo18bo2bo24bo2bo25bo2bo32bo2b2o29bo2b2o
+$5bobobo25b2obobobo14b2obobobo20b2obobobo21b2obobobo28b2obobobo26b2obo
+bobo$4b2ob2o26bo2bob2o15bo2bobobo20bo2bobobo21bo2bobobo28bo2bobo28b2o
+bob2o$36b2o21b2ob2o23b2ob2o24b2ob2o31bo2b2o29bo2bo$82b2o33bo33b2ob2o
+30bobo$81bo2bo30bobo34bob2o30bobo$81bo2bo7bo22b2o36b3o31b2o$82b2o7bobo
+61b3o32b2o$91bobo62bobo31bobo$92bo65bo33bo$158b2o32b2o!

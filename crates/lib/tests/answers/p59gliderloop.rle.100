@@ -1,0 +1,11 @@
+x = 80, y = 80, rule = B3/S23
+35b2o$35bobo$37bo4b2o$33b4ob2o2bo2bo$33bo2bobobobob2o$36bobobobo$37b2o
+bobo$41bo2$27b2o$28bo$28bobo$29b2o6bo$36bobo$35b2ob2o$36bo2bo$37b2o
+3$39b2o$39bo$40b3o$42bo2$52bobo$53b2o$24b2o27bo$25b2o44bo$24bo44b3o
+$68bo$68b2o3$76b2o$77bo$3b2o61bo10bob2o$4bo60b3o7b3o2bo$2bo61bo3bo5bo
+3b2o$2b5o14b2o41bob2o6b4o$7bo13bo38b2o3b2o10bo$4b3o12bobo37bobo12b3o
+$3bo10b2o3b2o38bo13bo$3b4o6b2obo41b2o14b5o$b2o3bo5bo3bo61bo$o2b3o7b3o
+60bo$2obo10bo61b2o$3bo$3b2o3$11b2o$12bo$9b3o44bo$9bo44b2o$27bo27b2o
+$26b2o$26bobo2$38bo$38b3o$41bo$40b2o3$42b2o$41bo2bo$41b2ob2o$42bobo
+$43bo6b2o$50bobo$52bo$52b2o2$39bo$38bobob2o$38bobobobo$35b2obobobobo
+2bo$35bo2bo2b2ob4o$37b2o4bo$43bobo$44b2o!

@@ -1,0 +1,18 @@
+x = 284, y = 74, rule = B3/S23
+25$217bo$216bo$216b3o5$211bo$210bobo$210bo$211b2o3$211bobo$185bo28bo
+$185bo24bo$185bo22bobobo2bo$188bo19bobo4b2o$187bobo14bo3bobo2bobo
+$204bo3bobo3bo$102b2o38b2o38b4o3bo19bo$101bo2bo36bo2bo36bo2bobob2o19bo
+$102bobo37bobo40bo2bo$103bo39bo38bo$4bo39bo39bo39bo57bobo$3bobo37bobo
+37bobo37bobo57b2o$3bo2bo36bo2bo36bo2bo36bo2bo57bo$4b2o38b2o38b2o38b2o
+$185bo5b2o$184bobo5bo$185b2o2bo2bo2$185b2o2b3o14b2o3b2o17b2o44b2o3b2o
+$184b3o19bobobobo16b5o42bobobobo$208bobo18bo3bo44bobo$187b2o14bo11bo
+12bobob3o38bo11bo$187b3o11bo2bobo5bobo2bo14bo38bo2bobo5bobo2bo$185bo
+3b2o10bo3b2o5b2o3bo10b2o3bo37bo3b2o5b2o3bo$186bo14bo2bobo5bobo2bo11b3o
+39bo2bobo5bobo2bo$184b3obobo12bo11bo14b2o41bo11bo$185bo3bo18bobo67bobo
+$185b5o16bobobobo19b3o41bobobobo$187b2o17b2o3b2o14b3o2b2o42b2o3b2o
+2$226bo2bo2b2o$226bo5bobo$226b2o5bo$33b2o38b2o38b2o38b2o$32bo2bo36bo
+2bo36bo2bo36bo2bo78bo$33bobo37bobo37bobo37bobo78b2o$34bo39bo39bo39bo
+79bobo$95bo39bo100bo$94bobo37bobo93bo2bo$94bo2bo36bo2bo71bo19b2obobo
+2bo$95b2o38b2o72bo19bo3b4o$204bo3bobo3bo$203bobo2bobo3bo14bobo$202b2o
+4bobo19bo$203bo2bobobo22bo$208bo24bo$204bo28bo$205bobo3$206b2o$208bo
+$206bobo$207bo5$200b3o$202bo$201bo!

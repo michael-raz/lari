@@ -1,0 +1,11 @@
+x = 49, y = 39, rule = B3/S23
+18446744073709551566$8bo7bo18bo7bo$7b3o5b3o16b3o5b3o$6b2obo5bob2o14bo
+2b2o3b2o2bo$7b2obo3bob2o15bo3bo3bo3bo$5bob2o7b2obo14b2ob2ob2ob2o$4bobo
+2bobobobo2bobo13b2obo3bob2o$4bobo3b2ob2o3bobo15bo5bo$5b3obo5bob3o17b2o
+b2o$6b3o7b3o13b2o2bo5bo2b2o$6b2o9b2o13b2o2bo5bo2b2o$6bo11bo$5b2o11b2o
+16bobobobo$5b2o11b2o16b2o3b2o2$9b2o3b2o$9b2o3b2o4bo10bo$4bo14b3o8b3o
+14bo$3b3o12bo2b2o6bo2b2o2b2o3b2o3b3o$2bo2b2o11b3o8b2o5b2o3b2o2bo2b2o
+$28bo16bo3bo$17bo10b3o18bo$7bo8bobo29bo$2o2bob2obo12bobo18bobo$bo6bo
+7bo2bo2bobo9bo10bo$2bo2bo11b2o3bo9bo$3bo27bo2bo9bo$3b2o27bo16bo$4bo
+28bo15bo$3bobo2bobo38bo$8bobo38bo$49bo$8b3o38bo$9b2o4bo$8bo7b2o$11bo
+4bo17bo$10bo4b2o17bo$10b2o2b2o3$35bo!

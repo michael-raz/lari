@@ -1,0 +1,10 @@
+x = 48, y = 48, rule = B3/S23
+5bo4bo8b2o7b2o8bo4bo$4bobo3b3o6b2o7b2o6b3o3bobo$5bo7bo21bo7bo$12b2o
+21b2o$bo45bo$obo3b2o33b2o3bobo$bo3bobo5b2o19b2o5bobo3bo$5b2o6b3o17b3o
+6b2o$12bobo19bobo2$2o16b3o7b3o16b2o$bo18bo7bo18bo$bobo4bo9b2o9b2o9bo
+4bobo$2b2o2b2o33b2o2b2o$6b3o31b3o$7bo33bo3$10bobo23bobo$2o8bobo23bobo
+8b2o$2o8b2o25b2o8b2o8$2o8b2o25b2o8b2o$2o8bobo23bobo8b2o$10bobo23bobo
+3$7bo33bo$6b3o31b3o$2b2o2b2o33b2o2b2o$bobo4bo9b2o9b2o9bo4bobo$bo18bo
+7bo18bo$2o16b3o7b3o16b2o2$12bobo19bobo$5b2o6b3o17b3o6b2o$bo3bobo5b2o
+19b2o5bobo3bo$obo3b2o33b2o3bobo$bo45bo$12b2o21b2o$5bo7bo21bo7bo$4bobo
+3b3o6b2o7b2o6b3o3bobo$5bo4bo8b2o7b2o8bo4bo!

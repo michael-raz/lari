@@ -1,0 +1,10 @@
+x = 36, y = 36, rule = B3/S23
+16bo3bo$10b2o4bo3bo4b2o$10bo5bo3bo5bo$7b2obo15bob2o$6bobob2o13b2obobo
+$6bobo19bobo$4b2o2bo6bo5bo6bo2b2o$3bo4b2o4b3o3b3o4b2o4bo$3b5o6b2obobo
+b2o6b5o$7bo8b2ob2o8bo$b4o11b2ob2o11b4o$bo2bo10bo5bo10bo2bo$15bobobobo
+$17bobo$7b2o6b2o3b2o6b2o$6b3o2b2obo7bob2o2b3o$3o4bob2o3bo7bo3b2obo4b3o
+$8b3ob2o9b2ob3o2$8b3ob2o9b2ob3o$3o4bob2o3bo7bo3b2obo4b3o$6b3o2b2obo7bo
+b2o2b3o$7b2o6b2o3b2o6b2o$17bobo$15bobobobo$bo2bo10bo5bo10bo2bo$b4o
+11b2ob2o11b4o$7bo8b2ob2o8bo$3b5o6b2obobob2o6b5o$3bo4b2o4b3o3b3o4b2o4bo
+$4b2o2bo6bo5bo6bo2b2o$6bobo19bobo$6bobob2o13b2obobo$7b2obo15bob2o$10bo
+5bo3bo5bo$10b2o4bo3bo4b2o$16bo3bo!

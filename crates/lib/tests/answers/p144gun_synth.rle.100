@@ -1,0 +1,13 @@
+x = 409, y = 57, rule = B3/S23
+25$415bobo$415b2o$416bo13$382b2o$382b2o6$397bo$396bobo$396bobo$397bo
+2$390bo2bo$390bob2o$389b2obo$389bo2bo$186b2o$186b2o57bo56bo82bo$183b2o
+59bobo54bobo80bobo$182bo2bo58bobo54bobo80bobo$183bobo59bo56bo82bo
+$184b2o5$249b2o55b2o93b2o$179bo69bo49bo6bo94bo$179bo61b3o3bobo49bo4bo
+bo92bobo$179bo67b2o50bo4b2o93b2o$67bo60b2o42b2o61b2o55b2o93b2o4bobo
+$66bobo59bo43bo62bo56bo94bo6bo$66bobo56b2obo40b2obo59b2obo53b2obo91b2o
+bo6bo$12b2o53b2ob2o53bob2ob2o37bob2ob2o56bob2ob2o50bob2ob2o88bob2ob2o
+$11bo2bo55bo59bo43bo62bo56bo94bo$11bobo56bo59bo43bo62bo56bo94bo$8b2o
+b2o54b2ob2o55b2ob2o39b2ob2o58b2ob2o52b2ob2o90b2ob2o$8bobo56bobo57bobo
+41bobo60bobo54bobo92bobo$10bo58bo59bo43bo62bo56bo5b2o87bo5b2o$10b2o
+57b2o58b2o42b2o61b2o55b2o4bo88b2o4bo$300b3o63bo28b3o$302bo63b2o29bo
+$365bobo!

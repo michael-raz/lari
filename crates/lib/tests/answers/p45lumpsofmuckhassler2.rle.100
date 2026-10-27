@@ -1,0 +1,11 @@
+x = 62, y = 42, rule = B3/S23
+2$4bo2b2o4b2o2bo27bo2b2o4b2o2bo$3bo3b3o2b3o3bo25bo3b3o2b3o3bo$4bo2b2o
+4b2o2bo27bo2b2o4b2o2bo3$2o59b2o$obo57bobo$bo7bobo39bobo7bo$5b2o2bobo
+2b2o31b2o2bobo2b2o$4bo11bo29bo11bo$3b2o2bobobobo2b2o27b2o2bobobobo2b2o
+$4b2o3bobo3b2o29b2o3bobo3b2o$5b3o5b3o31b3o5b3o3$9b2o12b2o13b2o12b2o
+$9b2o13b2o11b2o13b2o$21b2obo13bob2o$21bo19bo$21b3o15b3o4$21b3o15b3o
+$21bo19bo$21b2obo13bob2o$9b2o13b2o11b2o13b2o$9b2o12b2o13b2o12b2o3$5b3o
+5b3o31b3o5b3o$4b2o3bobo3b2o29b2o3bobo3b2o$3b2o2bobobobo2b2o27b2o2bobo
+bobo2b2o$4bo11bo29bo11bo$5b2o2bobo2b2o31b2o2bobo2b2o$bo7bobo39bobo7bo
+$obo57bobo$2o59b2o3$4bo2b2o4b2o2bo27bo2b2o4b2o2bo$3bo3b3o2b3o3bo25bo
+3b3o2b3o3bo$4bo2b2o4b2o2bo27bo2b2o4b2o2bo!
