@@ -345,94 +345,112 @@ impl FromIterator<Vec2> for Grid {
 }
 
 #[cfg(test)]
-pub(crate) fn gen_test_grids() -> impl Iterator<Item = Grid> {
-    vec![
-        // empty
-        Grid::new(),
-        // one cell
-        Grid::from_table(&[[1]]),
-        // block (stable)
-        Grid::from_table(&[[1, 1], [1, 1]]),
-        // tub (stable)
-        Grid::from_table(&[[0, 1, 0], [1, 0, 1], [0, 1, 0]]),
-        // blinker (period of 2)
-        Grid::from_table(&[[0, 1, 0], [0, 1, 0], [0, 1, 0]]),
-        // glider
-        Grid::from_table(&[[0, 0, 1], [1, 0, 1], [0, 1, 1]]),
-        // acorn
-        Grid::from_table(&[
-            [0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [1, 1, 0, 0, 1, 1, 1],
-        ]),
-    ]
-    .into_iter()
-}
+mod tests {
+    use super::*;
 
-#[test]
-fn save_load() {
-    fn assert_match(grid: Grid) {
-        let mut raw = vec![];
-        grid.save(&mut raw).unwrap();
+    macro_rules! assert_steps {
+        ($before:expr => $after:expr; after $steps:literal steps) => {
+            let mut before = Grid::from_table($before);
+            let after = Grid::from_table($after);
 
-        let out = Grid::load(&mut io::Cursor::new(raw)).unwrap();
+            before.step($steps);
 
-        assert_eq!(grid, out);
+            assert_eq!(before, after);
+        };
     }
 
-    gen_test_grids().for_each(|mut g| {
-        assert_match(g.clone());
-        g.step(100);
-        assert_match(g);
-    });
-}
+    #[test]
+    fn single() {
+        assert_steps!(&[[1]] => &[[1]]; after 0 steps);
+        assert_steps!(&[[1]] => &[[0]]; after 1 steps);
+        assert_steps!(&[[1]] => &[[0]]; after 2 steps);
+    }
 
-#[cfg(test)]
-macro_rules! assert_steps {
-    ($before:expr => $after:expr; after $steps:literal steps) => {
-        let mut before = Grid::from_table($before);
-        let after = Grid::from_table($after);
+    #[test]
+    fn block() {
+        assert_steps!(&[
+            [1, 1],
+            [1, 1],
+        ] => &[
+            [1, 1],
+            [1, 1],
+        ]; after 1 steps);
 
-        before.step($steps);
+        assert_steps!(&[
+            [1, 1],
+            [1, 1],
+        ] => &[
+            [1, 1],
+            [1, 1],
+        ]; after 10 steps);
+    }
 
-        assert_eq!(before, after);
-    };
-}
+    #[test]
+    fn blinker() {
+        assert_steps!(&[
+            [0, 0, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ] => &[
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+        ]; after 1 steps);
 
-#[test]
-fn simple() {
-    assert_steps!(&[[1]] => &[[1]]; after 0 steps);
-    assert_steps!(&[[1]] => &[[0]]; after 1 steps);
+        assert_steps!(&[
+            [0, 0, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ] => &[
+            [0, 0, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ]; after 2 steps);
+    }
 
-    assert_steps!(&[
-        [1, 1],
-        [1, 1],
-    ] => &[
-        [1, 1],
-        [1, 1],
-    ]; after 1 steps);
+    pub(crate) fn gen_test_grids() -> impl Iterator<Item = Grid> {
+        vec![
+            // empty
+            Grid::new(),
+            // one cell
+            Grid::from_table(&[[1]]),
+            // block (stable)
+            Grid::from_table(&[[1, 1], [1, 1]]),
+            // tub (stable)
+            Grid::from_table(&[[0, 1, 0], [1, 0, 1], [0, 1, 0]]),
+            // blinker (period of 2)
+            Grid::from_table(&[[0, 1, 0], [0, 1, 0], [0, 1, 0]]),
+            // glider
+            Grid::from_table(&[[0, 0, 1], [1, 0, 1], [0, 1, 1]]),
+            // acorn
+            Grid::from_table(&[
+                [0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0],
+                [1, 1, 0, 0, 1, 1, 1],
+            ]),
+        ]
+        .into_iter()
+    }
 
-    assert_steps!(&[
-        [1, 1],
-        [1, 1],
-    ] => &[
-        [1, 1],
-        [1, 1],
-    ]; after 10 steps);
-}
+    mod serialization {
+        use super::*;
 
-#[test]
-fn blinker() {
-    let init = Grid::from_table(&[[0, 0, 0], [1, 1, 1], [0, 0, 0]]);
-    let other = Grid::from_table(&[[0, 1, 0], [0, 1, 0], [0, 1, 0]]);
+        #[test]
+        fn save_load() {
+            fn assert_match(grid: Grid) {
+                let mut raw = vec![];
+                grid.save(&mut raw).unwrap();
 
-    let mut grid = init.clone();
+                let out = Grid::load(&mut io::Cursor::new(raw)).unwrap();
 
-    assert_eq!(grid, init);
+                assert_eq!(grid, out);
+            }
 
-    grid.step(1);
-    assert_eq!(grid, other);
-
-    grid.step(1);
-    assert_eq!(grid, init);
+            gen_test_grids().for_each(|mut g| {
+                assert_match(g.clone());
+                g.step(100);
+                assert_match(g);
+            });
+        }
+    }
 }

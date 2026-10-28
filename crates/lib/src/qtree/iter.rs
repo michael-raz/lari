@@ -119,34 +119,39 @@ impl<T> FromIterator<(Vec2, T)> for Qtree<T> {
     }
 }
 
-#[test]
-fn qiter() {
+#[cfg(test)]
+mod tests {
+    use super::*;
     use std::collections::HashMap;
 
-    macro_rules! assert_iter_eq {
-        ($points:expr) => {{
-            let mut counter = 0;
-            let (q, verify) = qfrom($points.into_iter().map(|p| p.into()), |_| {
-                let out = counter;
-                counter += 1;
-                out
-            });
+    #[test]
+    fn qiter() {
+        macro_rules! assert_iter_eq {
+            ($points:expr) => {{
+                let mut counter = 0;
+                let (q, verify) =
+                    crate::qtree::tests::qfrom($points.into_iter().map(|p| p.into()), |_| {
+                        let out = counter;
+                        counter += 1;
+                        out
+                    });
 
-            let out = HashMap::from_iter(q.into_iter());
-            assert_eq!(out, verify);
-        }};
+                let out = HashMap::from_iter(q.into_iter());
+                assert_eq!(out, verify);
+            }};
+        }
+
+        assert_iter_eq!(Vec::<Vec2>::new());
+        assert_iter_eq!([(0, 0)]);
+        assert_iter_eq!([(-1, 0)]);
+        assert_iter_eq!([(0, -1)]);
+        assert_iter_eq!([(-1, -1)]);
+
+        assert_iter_eq!([(0, 0), (0, -1)]);
+        assert_iter_eq!([(0, 0), (-1, 0), (0, -1), (-1, -1)]);
+
+        use rand::random;
+        let points = std::iter::from_fn(|| Some((random::<i64>(), random::<i64>()))).take(256);
+        assert_iter_eq!(points);
     }
-
-    assert_iter_eq!(Vec::<Vec2>::new());
-    assert_iter_eq!([(0, 0)]);
-    assert_iter_eq!([(-1, 0)]);
-    assert_iter_eq!([(0, -1)]);
-    assert_iter_eq!([(-1, -1)]);
-
-    assert_iter_eq!([(0, 0), (0, -1)]);
-    assert_iter_eq!([(0, 0), (-1, 0), (0, -1), (-1, -1)]);
-
-    use rand::random;
-    let points = std::iter::from_fn(|| Some((random::<i64>(), random::<i64>()))).take(256);
-    assert_iter_eq!(points);
 }

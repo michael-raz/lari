@@ -160,24 +160,29 @@ pub fn from_grid(grid: &Grid, out: &mut impl Write) -> io::Result<usize> {
     Ok(count)
 }
 
-#[test]
-fn rle_save_load() {
-    fn assert_match(grid: Grid) {
-        let bb = grid.aabb();
-        let grid = Grid::from_iter(grid.into_iter().map(|p| p - bb.0));
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        let mut raw = vec![];
-        let len = from_grid(&grid, &mut raw).unwrap();
-        assert_eq!(raw.len(), len);
+    #[test]
+    fn rle_save_load() {
+        fn assert_match(grid: Grid) {
+            let bb = grid.aabb();
+            let grid = Grid::from_iter(grid.into_iter().map(|p| p - bb.0));
 
-        let out = to_grid(&mut io::Cursor::new(raw)).unwrap();
+            let mut raw = vec![];
+            let len = from_grid(&grid, &mut raw).unwrap();
+            assert_eq!(raw.len(), len);
 
-        assert_eq!(grid, out);
+            let out = to_grid(&mut io::Cursor::new(raw)).unwrap();
+
+            assert_eq!(grid, out);
+        }
+
+        crate::cgol::tests::gen_test_grids().for_each(|mut g| {
+            assert_match(g.clone());
+            g.step(100);
+            assert_match(g);
+        });
     }
-
-    gen_test_grids().for_each(|mut g| {
-        assert_match(g.clone());
-        g.step(100);
-        assert_match(g);
-    });
 }

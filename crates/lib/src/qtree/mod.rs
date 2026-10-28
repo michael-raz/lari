@@ -473,185 +473,186 @@ impl<T> Default for Children<T> {
 }
 
 #[cfg(test)]
-use std::collections::HashMap;
-
-#[cfg(test)]
-fn qfrom<T: Copy>(
-    src: impl IntoIterator<Item = Vec2>,
-    mut f: impl FnMut(Vec2) -> T,
-) -> (Qtree<T>, HashMap<Vec2, T>) {
-    let mut verify = HashMap::new();
-    let mut q = Qtree::new();
-    for p in src.into_iter() {
-        let value = f(p);
-        verify.insert(p, value);
-        q.insert(p, value);
-    }
-
-    (q, verify)
-}
-
-#[test]
-fn qsave() {
-    macro_rules! assert_save_eq {
-        ($points:expr) => {{
-            let (q, verify) = qfrom($points.into_iter().map(|p| p.into()), |_| ());
-            dbg!(&verify);
-
-            let mut bytes = vec![];
-            q.save(&mut bytes).unwrap();
-            dbg!(&bytes);
-
-            let after = Qtree::load(&mut std::io::Cursor::new(&bytes)).unwrap();
-            let out = HashMap::from_iter(after.into_iter());
-
-            assert_eq!(out, verify);
-        }};
-    }
-
-    let empty: Vec<Vec2> = vec![];
-    assert_save_eq!(empty);
-    assert_save_eq!([(0, 0)]);
-    assert_save_eq!([(-1, 0)]);
-    assert_save_eq!([(0, -1)]);
-    assert_save_eq!([(-1, -1)]);
-
-    assert_save_eq!([(0, 0), (0, -1)]);
-    assert_save_eq!([(0, 0), (-1, 0), (0, -1), (-1, -1)]);
-
-    assert_save_eq!([(1, 1)]);
-    assert_save_eq!([(3, 3)]);
-
-    use rand::random;
-    let points = std::iter::from_fn(|| Some((random::<i64>(), random::<i64>()))).take(256);
-    assert_save_eq!(points);
-}
-
-#[test]
-fn qchain() {
-    let mut x = Qtree::<()>::new();
-
-    macro_rules! assert_chain {
-        ($coords:expr, $chain:expr) => {
-            let mut x = Qtree::<()>::new();
-            let out = x.as_dirs($coords.into());
-            assert_eq!(out, $chain);
-        };
-        (h = $h:expr, $coords:expr, $chain:expr) => {
-            let mut x = Qtree::<()>::new();
-
-            for _ in 1..$h {
-                x.grow();
-            }
-            assert_eq!(x.height, $h);
-
-            let out = x.as_dirs($coords.into());
-            assert_eq!(out, $chain);
-        };
-    }
-
-    assert_chain!((0, 0), qpath![TopRight]);
-    assert_chain!((-1, 0), qpath![TopLeft]);
-    assert_chain!((-1, -1), qpath![BotLeft]);
-    assert_chain!((0, -1), qpath![BotRight]);
-
-    assert_chain!(h = 2, (0, 0), qpath![TopRight, BotLeft]);
-    assert_chain!(h = 2, (-1, 0), qpath![TopLeft, BotRight]);
-    assert_chain!(h = 2, (-1, -1), qpath![BotLeft, TopRight]);
-    assert_chain!(h = 2, (0, -1), qpath![BotRight, TopLeft]);
-
-    assert_chain!(h = 3, (0, 0), qpath![TopRight, BotLeft, BotLeft]);
-    assert_chain!(h = 3, (-1, 0), qpath![TopLeft, BotRight, BotRight]);
-    assert_chain!(h = 3, (-1, -1), qpath![BotLeft, TopRight, TopRight]);
-    assert_chain!(h = 3, (0, -1), qpath![BotRight, TopLeft, TopLeft]);
-}
-
-#[cfg(test)]
-fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
-    let mut counter = Path::from_iter(std::iter::repeat_n(Dir::default(), q.height() as usize));
-    'main: loop {
-        eprintln!(
-            "{:?} -> {:?} -> {:?}",
-            counter,
-            Qtree::<()>::to_pos(&counter),
-            q.root.get_owner(&counter).map(|node| node.as_value())
-        );
-
-        // increment
-        let mut next = counter.pop().unwrap().inc();
-        while next.is_none() {
-            if counter.is_empty() {
-                break 'main;
-            }
-            next = counter.pop().unwrap().inc();
-        }
-        counter.push(next.unwrap());
-        while counter.len() < q.height() {
-            counter.push(Dir::default());
-        }
-    }
-}
-
-#[test]
-fn qtree_set_get_basic() {
-    let points = [(-1, -1), (0, 0), (0, 2), (1, 1), (2, 2)]
-        .into_iter()
-        .map(|p| p.into())
-        .collect::<Vec<_>>();
-
-    let mut x = Qtree::new();
-    for &p in &points {
-        dbg!(p);
-        x.insert(p, ());
-
-        showq(&x);
-        assert!(x.contains(&p));
-    }
-
-    for &p in &points {
-        dbg!(p);
-        assert!(x.contains(&p));
-    }
-}
-
-#[test]
-fn qtree_set_get_rand() {
-    use rand::random;
+mod tests {
+    use super::*;
     use std::collections::HashMap;
 
-    let mut qtree = Qtree::new();
-    let mut verify = HashMap::new();
+    pub(crate) fn qfrom<T: Copy>(
+        src: impl IntoIterator<Item = Vec2>,
+        mut f: impl FnMut(Vec2) -> T,
+    ) -> (Qtree<T>, HashMap<Vec2, T>) {
+        let mut verify = HashMap::new();
+        let mut q = Qtree::new();
+        for p in src.into_iter() {
+            let value = f(p);
+            verify.insert(p, value);
+            q.insert(p, value);
+        }
 
-    for i in 0..256 {
-        let x = random::<i64>();
-        let y = random::<i64>();
-        let value = i;
+        (q, verify)
+    }
 
-        let pos = vec2![x, y];
+    #[test]
+    fn qsave() {
+        macro_rules! assert_save_eq {
+            ($points:expr) => {{
+                let (q, verify) = qfrom($points.into_iter().map(|p| p.into()), |_| ());
+                dbg!(&verify);
 
-        verify.insert(pos, value);
-        qtree.insert(pos, value);
+                let mut bytes = vec![];
+                q.save(&mut bytes).unwrap();
+                dbg!(&bytes);
 
-        for (k, v) in &verify {
-            assert_eq!(qtree.get(*k), Some(v));
+                let after = Qtree::load(&mut std::io::Cursor::new(&bytes)).unwrap();
+                let out = HashMap::from_iter(after.into_iter());
+
+                assert_eq!(out, verify);
+            }};
+        }
+
+        let empty: Vec<Vec2> = vec![];
+        assert_save_eq!(empty);
+        assert_save_eq!([(0, 0)]);
+        assert_save_eq!([(-1, 0)]);
+        assert_save_eq!([(0, -1)]);
+        assert_save_eq!([(-1, -1)]);
+
+        assert_save_eq!([(0, 0), (0, -1)]);
+        assert_save_eq!([(0, 0), (-1, 0), (0, -1), (-1, -1)]);
+
+        assert_save_eq!([(1, 1)]);
+        assert_save_eq!([(3, 3)]);
+
+        use rand::random;
+        let points = std::iter::from_fn(|| Some((random::<i64>(), random::<i64>()))).take(256);
+        assert_save_eq!(points);
+    }
+
+    #[test]
+    fn qchain() {
+        let mut x = Qtree::<()>::new();
+
+        macro_rules! assert_chain {
+            ($coords:expr, $chain:expr) => {
+                let mut x = Qtree::<()>::new();
+                let out = x.as_dirs($coords.into());
+                assert_eq!(out, $chain);
+            };
+            (h = $h:expr, $coords:expr, $chain:expr) => {
+                let mut x = Qtree::<()>::new();
+
+                for _ in 1..$h {
+                    x.grow();
+                }
+                assert_eq!(x.height, $h);
+
+                let out = x.as_dirs($coords.into());
+                assert_eq!(out, $chain);
+            };
+        }
+
+        assert_chain!((0, 0), qpath![TopRight]);
+        assert_chain!((-1, 0), qpath![TopLeft]);
+        assert_chain!((-1, -1), qpath![BotLeft]);
+        assert_chain!((0, -1), qpath![BotRight]);
+
+        assert_chain!(h = 2, (0, 0), qpath![TopRight, BotLeft]);
+        assert_chain!(h = 2, (-1, 0), qpath![TopLeft, BotRight]);
+        assert_chain!(h = 2, (-1, -1), qpath![BotLeft, TopRight]);
+        assert_chain!(h = 2, (0, -1), qpath![BotRight, TopLeft]);
+
+        assert_chain!(h = 3, (0, 0), qpath![TopRight, BotLeft, BotLeft]);
+        assert_chain!(h = 3, (-1, 0), qpath![TopLeft, BotRight, BotRight]);
+        assert_chain!(h = 3, (-1, -1), qpath![BotLeft, TopRight, TopRight]);
+        assert_chain!(h = 3, (0, -1), qpath![BotRight, TopLeft, TopLeft]);
+    }
+
+    fn showq<T: std::fmt::Debug>(q: &Qtree<T>) {
+        let mut counter = Path::from_iter(std::iter::repeat_n(Dir::default(), q.height() as usize));
+        'main: loop {
+            eprintln!(
+                "{:?} -> {:?} -> {:?}",
+                counter,
+                Qtree::<()>::to_pos(&counter),
+                q.root.get_owner(&counter).map(|node| node.as_value())
+            );
+
+            // increment
+            let mut next = counter.pop().unwrap().inc();
+            while next.is_none() {
+                if counter.is_empty() {
+                    break 'main;
+                }
+                next = counter.pop().unwrap().inc();
+            }
+            counter.push(next.unwrap());
+            while counter.len() < q.height() {
+                counter.push(Dir::default());
+            }
         }
     }
-}
 
-#[test]
-fn qtree_iter() {
-    use rand::random;
-    use std::collections::HashMap;
+    #[test]
+    fn qtree_set_get_basic() {
+        let points = [(-1, -1), (0, 0), (0, 2), (1, 1), (2, 2)]
+            .into_iter()
+            .map(|p| p.into())
+            .collect::<Vec<_>>();
 
-    let mut q = Qtree::new();
-    for i in 0..256 {
-        let x = random::<i64>();
-        let y = random::<i64>();
-        q.insert(vec2![x, y], i);
+        let mut x = Qtree::new();
+        for &p in &points {
+            dbg!(p);
+            x.insert(p, ());
+
+            showq(&x);
+            assert!(x.contains(&p));
+        }
+
+        for &p in &points {
+            dbg!(p);
+            assert!(x.contains(&p));
+        }
     }
 
-    let a = HashMap::<Vec2, i64>::from_iter(q.iter().map(|(pos, &value)| (pos, value)));
-    let b = HashMap::<Vec2, i64>::from_iter(q);
+    #[test]
+    fn qtree_set_get_rand() {
+        use rand::random;
+        use std::collections::HashMap;
 
-    assert_eq!(a, b);
+        let mut qtree = Qtree::new();
+        let mut verify = HashMap::new();
+
+        for i in 0..256 {
+            let x = random::<i64>();
+            let y = random::<i64>();
+            let value = i;
+
+            let pos = vec2![x, y];
+
+            verify.insert(pos, value);
+            qtree.insert(pos, value);
+
+            for (k, v) in &verify {
+                assert_eq!(qtree.get(*k), Some(v));
+            }
+        }
+    }
+
+    #[test]
+    fn qtree_iter() {
+        use rand::random;
+        use std::collections::HashMap;
+
+        let mut q = Qtree::new();
+        for i in 0..256 {
+            let x = random::<i64>();
+            let y = random::<i64>();
+            q.insert(vec2![x, y], i);
+        }
+
+        let a = HashMap::<Vec2, i64>::from_iter(q.iter().map(|(pos, &value)| (pos, value)));
+        let b = HashMap::<Vec2, i64>::from_iter(q);
+
+        assert_eq!(a, b);
+    }
 }

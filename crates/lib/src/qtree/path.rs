@@ -244,7 +244,7 @@ impl<'a> Iterator for PathRefIter<'a> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use rand::random;
 
