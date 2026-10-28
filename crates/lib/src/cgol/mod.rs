@@ -69,9 +69,13 @@ pub use crate::vec2::*;
 ///
 /// assert_eq!(glider, after);
 /// ```
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone)]
 pub struct Grid {
     cells: MooreGrid,
+
+    // keeps track of which cells have been changed
+    // (includes their neighbors)
+    dirty: HashSet<Vec2>,
 }
 
 impl Grid {
@@ -105,14 +109,11 @@ impl Grid {
     /// assert_eq!(a, b);
     /// ```
     pub fn step(&mut self, count: usize) {
-        let mut dirty = HashSet::<Vec2>::from_iter(self.cells.iter_all().map(|all| all.0));
         let mut queue: Vec<Vec2> = vec![];
 
         for _ in 0..count {
             queue.clear();
-            queue.extend(dirty.iter());
-
-            dirty.clear();
+            queue.extend(self.dirty.drain());
 
             let mut scratch = self.cells.clone();
             while let Some(cur) = queue.pop() {
@@ -120,12 +121,8 @@ impl Grid {
 
                 let changed = scratch.set(cur, acount == 3 || (alive && acount == 2));
                 if changed {
-                    dirty.insert(cur);
-                    for n in MooreGrid::neighbors(cur) {
-                        if dirty.insert(n) {
-                            queue.push(n);
-                        }
-                    }
+                    self.dirty.insert(cur);
+                    queue.extend(MooreGrid::neighbors(cur).filter(|&n| self.dirty.insert(n)));
                 }
             }
 
@@ -156,7 +153,12 @@ impl Grid {
     /// assert_eq!(grid.get(&p), false);
     /// ```
     pub fn set(&mut self, pos: impl Into<Vec2>, value: bool) {
-        self.cells.set(pos, value);
+        let pos = pos.into();
+        let changed = self.cells.set(pos, value);
+        if changed {
+            self.dirty.insert(pos);
+            self.dirty.extend(MooreGrid::neighbors(pos));
+        }
     }
 
     /// Returns true if the cell at `pos` is alive.
@@ -316,6 +318,13 @@ impl Grid {
         Grid::from_iter(iter.take(count as usize))
     }
 }
+
+impl PartialEq for Grid {
+    fn eq(&self, other: &Self) -> bool {
+        self.cells == other.cells
+    }
+}
+impl Eq for Grid {}
 
 impl IntoIterator for Grid {
     type Item = Vec2;
